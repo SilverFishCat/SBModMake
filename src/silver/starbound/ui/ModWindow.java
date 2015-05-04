@@ -57,7 +57,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
 
 public class ModWindow {
 	private JFrame frmModmake;

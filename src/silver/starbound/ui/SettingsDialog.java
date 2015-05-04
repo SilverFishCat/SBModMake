@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -29,8 +30,10 @@ import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
+import silver.starbound.util.PathUtil;
 import silver.starbound.util.OSUtil.Architecture;
 import silver.starbound.util.OSUtil.OperatingSystem;
+
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
@@ -79,9 +82,9 @@ public class SettingsDialog extends JDialog {
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		GridBagLayout gbl_contentPanel = new GridBagLayout();
 		gbl_contentPanel.columnWidths = new int[]{0, 0, 0, 0, 0};
-		gbl_contentPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
+		gbl_contentPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
 		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		contentPanel.setLayout(gbl_contentPanel);
 		
 		JLabel lblStrbndFolder = new JLabel("Starbound folder:");
@@ -114,17 +117,42 @@ public class SettingsDialog extends JDialog {
 			}
 		});
 		GridBagConstraints gbc_btnStrbndFolder = new GridBagConstraints();
-		gbc_btnStrbndFolder.insets = new Insets(0, 0, 5, 5);
+		gbc_btnStrbndFolder.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnStrbndFolder.insets = new Insets(0, 0, 5, 0);
 		gbc_btnStrbndFolder.gridx = 3;
 		gbc_btnStrbndFolder.gridy = 0;
 		contentPanel.add(btnStrbndFolder, gbc_btnStrbndFolder);
+		
+		JButton btnStrbndFolderFind = new JButton("Find");
+		btnStrbndFolderFind.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				final String ERROR_MESSAGE = "Can not find starbound folder";
+				String starboundFolderPath = PathUtil.getStarboundDirectory();
+				if(starboundFolderPath != null){
+					File starboundFolder = new File(starboundFolderPath);
+					if(starboundFolder.isDirectory())
+						currentSettings.setStarboundFolder(starboundFolder);
+					else
+						JOptionPane.showMessageDialog(contentPanel, "Found path, but path is invalid", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+				}
+				else{
+					JOptionPane.showMessageDialog(contentPanel, "Can't find starbound folder", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_btnStrbndFolderFind = new GridBagConstraints();
+		gbc_btnStrbndFolderFind.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnStrbndFolderFind.insets = new Insets(0, 0, 5, 0);
+		gbc_btnStrbndFolderFind.gridx = 3;
+		gbc_btnStrbndFolderFind.gridy = 1;
+		contentPanel.add(btnStrbndFolderFind, gbc_btnStrbndFolderFind);
 		
 		JLabel lblEditor = new JLabel("Text editor:");
 		GridBagConstraints gbc_lblEditor = new GridBagConstraints();
 		gbc_lblEditor.anchor = GridBagConstraints.WEST;
 		gbc_lblEditor.insets = new Insets(0, 0, 5, 5);
 		gbc_lblEditor.gridx = 0;
-		gbc_lblEditor.gridy = 1;
+		gbc_lblEditor.gridy = 2;
 		contentPanel.add(lblEditor, gbc_lblEditor);
 		
 		txtEditor = new JTextField();
@@ -136,7 +164,7 @@ public class SettingsDialog extends JDialog {
 		gbc_txtEditor.insets = new Insets(0, 0, 5, 5);
 		gbc_txtEditor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtEditor.gridx = 1;
-		gbc_txtEditor.gridy = 1;
+		gbc_txtEditor.gridy = 2;
 		contentPanel.add(txtEditor, gbc_txtEditor);
 		
 		JButton btnEditor = new JButton("Browse");
@@ -149,9 +177,10 @@ public class SettingsDialog extends JDialog {
 			}
 		});
 		GridBagConstraints gbc_btnEditor = new GridBagConstraints();
-		gbc_btnEditor.insets = new Insets(0, 0, 5, 5);
+		gbc_btnEditor.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnEditor.insets = new Insets(0, 0, 5, 0);
 		gbc_btnEditor.gridx = 3;
-		gbc_btnEditor.gridy = 1;
+		gbc_btnEditor.gridy = 2;
 		contentPanel.add(btnEditor, gbc_btnEditor);
 		
 		JLabel lblOperatingSystem = new JLabel("Operating system:");
@@ -159,7 +188,7 @@ public class SettingsDialog extends JDialog {
 		gbc_lblOperatingSystem.anchor = GridBagConstraints.EAST;
 		gbc_lblOperatingSystem.insets = new Insets(0, 0, 5, 5);
 		gbc_lblOperatingSystem.gridx = 0;
-		gbc_lblOperatingSystem.gridy = 2;
+		gbc_lblOperatingSystem.gridy = 3;
 		contentPanel.add(lblOperatingSystem, gbc_lblOperatingSystem);
 		
 		cmbBoxOperatingSystem = new JComboBox<OperatingSystem>();
@@ -178,7 +207,7 @@ public class SettingsDialog extends JDialog {
 		gbc_cmbBoxOperatingSystem.insets = new Insets(0, 0, 5, 5);
 		gbc_cmbBoxOperatingSystem.fill = GridBagConstraints.HORIZONTAL;
 		gbc_cmbBoxOperatingSystem.gridx = 1;
-		gbc_cmbBoxOperatingSystem.gridy = 2;
+		gbc_cmbBoxOperatingSystem.gridy = 3;
 		contentPanel.add(cmbBoxOperatingSystem, gbc_cmbBoxOperatingSystem);
 		
 		JLabel lblArchitecture = new JLabel("Architecture:");
@@ -186,7 +215,7 @@ public class SettingsDialog extends JDialog {
 		gbc_lblArchitecture.anchor = GridBagConstraints.WEST;
 		gbc_lblArchitecture.insets = new Insets(0, 0, 5, 5);
 		gbc_lblArchitecture.gridx = 0;
-		gbc_lblArchitecture.gridy = 3;
+		gbc_lblArchitecture.gridy = 4;
 		contentPanel.add(lblArchitecture, gbc_lblArchitecture);
 		
 		cmbBoxArchitecture = new JComboBox<Architecture>();
@@ -205,25 +234,25 @@ public class SettingsDialog extends JDialog {
 		gbc_cmbBoxArchitecture.insets = new Insets(0, 0, 5, 5);
 		gbc_cmbBoxArchitecture.fill = GridBagConstraints.HORIZONTAL;
 		gbc_cmbBoxArchitecture.gridx = 1;
-		gbc_cmbBoxArchitecture.gridy = 3;
+		gbc_cmbBoxArchitecture.gridy = 4;
 		contentPanel.add(cmbBoxArchitecture, gbc_cmbBoxArchitecture);
 		
 		JLabel lblToolFolder = new JLabel("Tool folder:");
 		GridBagConstraints gbc_lblToolFolder = new GridBagConstraints();
 		gbc_lblToolFolder.anchor = GridBagConstraints.WEST;
-		gbc_lblToolFolder.insets = new Insets(0, 0, 5, 5);
+		gbc_lblToolFolder.insets = new Insets(0, 0, 0, 5);
 		gbc_lblToolFolder.gridx = 0;
-		gbc_lblToolFolder.gridy = 4;
+		gbc_lblToolFolder.gridy = 5;
 		contentPanel.add(lblToolFolder, gbc_lblToolFolder);
 		
 		txtToolFolder = new JTextField();
 		txtToolFolder.setEditable(false);
 		GridBagConstraints gbc_txtToolFolder = new GridBagConstraints();
 		gbc_txtToolFolder.gridwidth = 2;
-		gbc_txtToolFolder.insets = new Insets(0, 0, 5, 5);
+		gbc_txtToolFolder.insets = new Insets(0, 0, 0, 5);
 		gbc_txtToolFolder.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtToolFolder.gridx = 1;
-		gbc_txtToolFolder.gridy = 4;
+		gbc_txtToolFolder.gridy = 5;
 		contentPanel.add(txtToolFolder, gbc_txtToolFolder);
 		txtToolFolder.setColumns(20);
 
