@@ -1,6 +1,14 @@
 # SBModMake
 Mod maker for Starbound
 
+Currently, the application has only been tested on Windows, but aspires to work on all platform that starbound supports.
+
+## Features
+* Automaticly finds the starbound folder [Windows]
+* Makes packing mods easier (no CLI)
+* Easy mod management
+* Streamlines mod creation
+
 ## Usage
 
 ### Creating a new mod
