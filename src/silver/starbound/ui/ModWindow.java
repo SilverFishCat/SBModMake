@@ -57,6 +57,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
+import com.jgoodies.forms.factories.DefaultComponentFactory;
 
 public class ModWindow {
 	private JFrame frmModmake;
@@ -74,6 +75,7 @@ public class ModWindow {
 	
 	private Mod mod;
 	private Settings settings;
+	private JButton btnFilesLoad;
 
 	/**
 	 * Launch the application.
@@ -217,6 +219,7 @@ public class ModWindow {
 						JOptionPane.showMessageDialog(frmModmake, "Folder created", "Success", JOptionPane.INFORMATION_MESSAGE);
 						refreshModFolderCreateButton();
 						refreshModinfoButton();
+						refreshFilesLoadButton();
 					}
 					else{
 						JOptionPane.showMessageDialog(frmModmake, "There was an error creating the folder", "Can't create folder", JOptionPane.ERROR_MESSAGE);
@@ -365,9 +368,9 @@ public class ModWindow {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,}));
 		
-		JButton btnFilesRefresh = new JButton("Refresh");
-		pnlFilesButtons.add(btnFilesRefresh, "1, 1");
-		btnFilesRefresh.addActionListener(new ActionListener() {
+		btnFilesLoad = new JButton("Load");
+		pnlFilesButtons.add(btnFilesLoad, "1, 1");
+		btnFilesLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
 				refreshFilesList();
 				refreshFilesEditButton();
@@ -393,7 +396,6 @@ public class ModWindow {
 		pnlButton.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.BUTTON_COLSPEC,},
 			new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,}));
@@ -404,11 +406,11 @@ public class ModWindow {
 				packMod();
 			}
 		});
-		pnlButton.add(btnPack, "1, 2");
+		pnlButton.add(btnPack, "1, 1");
 		btnPack.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		JButton btnSettings = new JButton("Settings");
-		pnlButton.add(btnSettings, "1, 4");
+		pnlButton.add(btnSettings, "1, 3");
 		btnSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				SettingsDialog dialog = new SettingsDialog(settings);
@@ -478,6 +480,7 @@ public class ModWindow {
 		
 		refreshModFolderCreateButton();
 		refreshModinfoButton();
+		refreshFilesLoadButton();
 	}
 	private void setModinfoFile(String filename){
 		mod.setModInfo(filename);
@@ -547,6 +550,9 @@ public class ModWindow {
 		File selectedFile = getSelectedFile();
 		btnFilesEdit.setEnabled(selectedFile != null && selectedFile.isFile());
 	}
+	private void refreshFilesLoadButton(){
+		btnFilesLoad.setEnabled(mod.isFolderValid() && !mod.getFolder().equals(PathUtil.getModFolder(settings.getStarboundFolder(), "")));
+	}
 	private void refreshPackButton(){
 		if(settings.isStarboundFolderValid()){
 			
@@ -560,6 +566,7 @@ public class ModWindow {
 		refreshModinfoButton();
 		refreshFilesList();
 		refreshFilesEditButton();
+		refreshFilesLoadButton();
 		refreshPackButton();
 	}
 	
