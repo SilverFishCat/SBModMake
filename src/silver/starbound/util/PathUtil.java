@@ -27,7 +27,11 @@ public class PathUtil {
 		}
 		return null;
 	}
-	public static File getModFolder(File starboundDirectory, String modName){
+	public static File getModsFolder(Settings settings){
+		return getModFolder(settings, "");
+	}
+	public static File getModFolder(Settings settings, String modName){
+		File starboundDirectory = settings.getStarboundFolder();
 		if(starboundDirectory != null && modName != null)
 			return new File(starboundDirectory.getAbsoluteFile() + MOD_FOLDER_PATH + "\\" + modName);
 		else
