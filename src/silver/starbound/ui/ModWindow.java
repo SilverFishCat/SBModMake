@@ -418,7 +418,13 @@ public class ModWindow {
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
 				final String ERROR_MESSAGE = "Can't save mod";
-				File file = selectFile("Select save file", new File(settings.getModsFolder(), mod.getDefaultModSaveFileName()));
+				File targetDirectory;
+				if(mod.isFolderValid())
+					 targetDirectory = mod.getFolder();
+				else
+					targetDirectory = settings.getModsFolder();
+				
+				File file = selectFile("Select save file", new File(targetDirectory, mod.getDefaultModSaveFileName()));
 				if(file != null){
 					try {
 						mod.saveToFile(file);
