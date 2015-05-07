@@ -5,8 +5,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 public class Mod {
 	private static final String JSON_NAME_KEY = "name";
@@ -70,32 +73,33 @@ public class Mod {
 		else
 			return "mod.save";
 	}
-	public JSONObject getJSON(){
-		JSONObject result = new JSONObject();
+	public JsonObject getJSON(){
+		JsonObject result = new JsonObject();
 		
-		result.put(JSON_NAME_KEY, getName());
-		result.put(JSON_FOLDER_PATH_KEY, getFolder().getAbsolutePath());
-		result.put(JSON_MOD_INFO_KEY, getModInfo());
+		result.add(JSON_NAME_KEY, new JsonPrimitive(getName()));
+		result.add(JSON_FOLDER_PATH_KEY, new JsonPrimitive(getFolder().getAbsolutePath()));
+		result.add(JSON_MOD_INFO_KEY, new JsonPrimitive(getModInfo()));
 		
 		return result;
 	}
-	public static Mod parseJSON(String jsonString) throws IllegalArgumentException, JSONException{
-		return parseJSON(new JSONObject(jsonString));
+	public static Mod parseJSON(String jsonString) throws IllegalArgumentException, JsonParseException{
+		return parseJSON(new JsonParser().parse(jsonString));
 	}
-	public static Mod parseJSON(JSONObject jsonObject) throws IllegalArgumentException, JSONException{
+	public static Mod parseJSON(JsonElement jsonElement) throws IllegalArgumentException, JsonParseException{
+		JsonObject jsonObject = jsonElement.getAsJsonObject();
 		String name = null;
 		File folder = null;
 		String modinfo = null;
 		
 		if(jsonObject.has(JSON_NAME_KEY)){
-			name = jsonObject.getString(JSON_NAME_KEY);
+			name = jsonObject.get(JSON_NAME_KEY).getAsString();
 		}
 		if(jsonObject.has(JSON_FOLDER_PATH_KEY)){
-			String folderPath = jsonObject.getString(JSON_FOLDER_PATH_KEY);
+			String folderPath = jsonObject.get(JSON_FOLDER_PATH_KEY).getAsString();
 			folder = new File(folderPath);
 		}
 		if(jsonObject.has(JSON_MOD_INFO_KEY)){
-			modinfo = jsonObject.getString(JSON_MOD_INFO_KEY);
+			modinfo = jsonObject.get(JSON_MOD_INFO_KEY).getAsString();
 		}
 		
 		return new Mod(name, folder, modinfo);
@@ -126,7 +130,7 @@ public class Mod {
 			throw ex;
 		}
 	}
-	public static Mod loadFromFile(File file) throws IllegalArgumentException, IOException, JSONException{
+	public static Mod loadFromFile(File file) throws IllegalArgumentException, IOException, JsonParseException{
 		if(file.canRead()){
 			FileReader reader = null;
 			try{

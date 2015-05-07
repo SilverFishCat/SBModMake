@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.google.gson.JsonParseException;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
@@ -57,8 +58,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
-
-import org.json.JSONException;
 
 public class ModWindow {
 	private JFrame frmModmake;
@@ -456,7 +455,7 @@ public class ModWindow {
 					} catch (IOException e) {
 						e.printStackTrace();
 						JOptionPane.showMessageDialog(frmModmake, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
-					} catch (JSONException e){
+					} catch (JsonParseException e){
 						e.printStackTrace();
 						JOptionPane.showMessageDialog(frmModmake, "Error in json object:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					}
