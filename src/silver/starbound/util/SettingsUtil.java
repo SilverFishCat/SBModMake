@@ -18,7 +18,9 @@ public class SettingsUtil {
 		Settings result = new Settings();
 		
 		Preferences node = Preferences.userRoot().node(PREFERENCES_NODE_NAME);
-		String starboundPath = node.get(PREFERENCES_STARBOUND_FOLDER_KEY, PathUtil.getStarboundDirectory());
+		String starboundPath = node.get(PREFERENCES_STARBOUND_FOLDER_KEY, null);
+		if(starboundPath == null)
+			starboundPath = PathUtil.getStarboundDirectory();
 		if(starboundPath != null)
 			result.setStarboundFolder(new File(starboundPath));
 		else
