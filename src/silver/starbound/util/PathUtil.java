@@ -116,9 +116,14 @@ public class PathUtil {
 	public static String getAutomaticStarboundDirectory(OperatingSystem os){
 		switch (os) {
 			case WINDOWS:{
-				String steamString = getRegistrySteamDirectoryEntry();
-				if(steamString != null){
-					return steamString + STARBOUND_FOLDER_PATH;
+				String starboundPath = RegistryUtil.getRegistryStarboundDirectoryEntry();
+				if(starboundPath != null){
+					return starboundPath;
+				}
+				
+				String steamPath = RegistryUtil.getRegistrySteamDirectoryEntry();
+				if(steamPath != null){
+					return steamPath + STARBOUND_FOLDER_PATH;
 				}
 			}
 			case LINUX:
@@ -129,37 +134,5 @@ public class PathUtil {
 			default:
 				return null;
 		}
-	}
-	
-	//--- Window Registry --- //
-	private static final String STEAM_REGISTRY_KEY = "HKEY_CURRENT_USER\\Software\\Valve\\Steam"; 
-	private static final String STEAM_FOLDER_REGISTRY_MEMBER = "SteamPath";
-	
-	private static String getRegistrySteamDirectoryEntry(){
-		try{
-			Process registryProcess = Runtime.getRuntime().exec("reg query \"" + STEAM_REGISTRY_KEY + "\" /v " + STEAM_FOLDER_REGISTRY_MEMBER);
-			registryProcess.waitFor();
-			StringWriter stringWriter = new StringWriter();
-			
-			int read = 0;
-			while((read = registryProcess.getInputStream().read()) != -1){
-				stringWriter.write(read);
-			}
-			
-			String result = stringWriter.toString();
-			result.trim();
-			String[] lines = result.split("\r\n");
-			String valueLine = lines[lines.length - 1];
-			String[] parts = valueLine.trim().split("\\s");
-			if(parts[0].equals("ERROR:"))
-				return null;
-			else
-				return parts[parts.length - 1];
-		}
-		catch(Exception ex){
-			
-		}
-		
-		return null;
 	}
 }
