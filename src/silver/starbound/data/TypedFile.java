@@ -57,7 +57,7 @@ public class TypedFile {
 			}
 			
 			try{
-				if(result == null){
+				if(result == FileType.UNKNOWN){
 					String typeMIME = new Tika().detect(file);
 					
 					if(typeMIME != null){
