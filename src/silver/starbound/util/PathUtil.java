@@ -1,7 +1,6 @@
 package silver.starbound.util;
 
 import java.io.File;
-import java.io.StringWriter;
 
 import silver.starbound.data.Settings;
 import silver.starbound.util.OSUtil.OperatingSystem;

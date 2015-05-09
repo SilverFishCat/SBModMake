@@ -37,6 +37,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import silver.starbound.data.Mod;
 import silver.starbound.data.Settings;
+import silver.starbound.data.TypedFile;
 import silver.starbound.ui.SettingsDialog.DialogResult;
 import silver.starbound.util.*;
 
@@ -47,10 +48,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
@@ -62,7 +59,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.border.TitledBorder;
-import org.apache.tika.Tika;
+
 import java.awt.Color;
 import java.awt.FlowLayout;
 
@@ -87,7 +84,7 @@ public class ModWindow {
 	private Mod mod;
 	private Settings settings;
 	
-	private File selectedFile; 
+	private TypedFile selectedFile; 
 	private JLabel txtFileType;
 
 	/**
@@ -118,7 +115,7 @@ public class ModWindow {
 		
 		settings = SettingsUtil.loadSettings();
 		
-		selectedFile = null;
+		selectedFile = new TypedFile(null);
 
 		chckbxModFolderAutomatic.setSelected(true);
 		chckbxModinfoFolderAutomatic.setSelected(true);
@@ -550,51 +547,13 @@ public class ModWindow {
 		else
 			txtModinfoFilename.setText("");
 	}
-	private enum FileType{
-		JSON,
-		IMAGE,
-		TEXT,
-		UNKNOWN
-	}
-	private FileType selectedFileType;
-	private void setSelectedFile(File file){
-		selectedFile = file;
-		selectedFileType = FileType.UNKNOWN;
+	private void setSelectedFile(File file){		
+		selectedFile = new TypedFile(file);
 		
 		if(file != null){
-			txtFileName.setText(selectedFile.getName());
+			txtFileName.setText(selectedFile.getFile().getName());
 			
-			// Check if file is a json object
-			try{
-				new JsonParser().parse(String.join("", Files.readAllLines(file.toPath())));
-				selectedFileType = FileType.JSON;
-			}
-			catch(JsonParseException ex){
-				
-			} catch (IOException e) {
-				
-			}
-			
-			try{
-				if(selectedFileType == null){
-					String typeMIME = new Tika().detect(selectedFile);
-					
-					if(typeMIME != null){
-						if(typeMIME.endsWith("png"))
-							selectedFileType = FileType.IMAGE;
-						else if(typeMIME.startsWith("text/"))
-							selectedFileType = FileType.TEXT;
-					}
-				}
-			}
-			catch(IOException ex){
-				
-			}
-			
-			if(selectedFileType == null)
-				selectedFileType = FileType.UNKNOWN;
-			
-			switch (selectedFileType) {
+			switch (selectedFile.getFileType()) {
 				case JSON:{
 					txtFileType.setText("JSON");
 				}
@@ -678,7 +637,7 @@ public class ModWindow {
 		treeFiles.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("N/A")));
 	}
 	private void refreshFileDetailsPanel(){		
-		boolean fileValid = selectedFile != null && selectedFile.isFile();
+		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
 		
 		synchronized (pnlFile.getTreeLock()) {
 			setEnabledRecursively(pnlFile, fileValid);
