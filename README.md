@@ -37,6 +37,9 @@ Select your operating system for the program to find the starbound tools.
 
 ## Compilation
 Compile the code in [/src](src) and include the libraries in [/lib](lib).
+Make sure to also reference these libraries:
+* https://github.com/SilverFishCat/SBModMake-Core
+* https://github.com/SilverFishCat/Swingon
 
 In you use eclipse, you can import the entire content as an eclipse project.
 
