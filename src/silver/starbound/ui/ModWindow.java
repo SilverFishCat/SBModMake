@@ -522,7 +522,7 @@ public class ModWindow {
 				if(ModinfoFile.exists()){
 					btnModinfoFilename.setText("Edit");
 					
-					if(!settings.isEditorValid()){
+					if(!settings.isTextEditorValid()){
 						btnModinfoFilename.setEnabled(false);
 					}
 				}
@@ -653,7 +653,7 @@ public class ModWindow {
 		}
 	}
 	private void editTextFile(File textFile){
-		File editor = settings.getEditor();
+		File editor = settings.getTextEditor();
 		
 		try {
 			Runtime.getRuntime().exec(String.join(" ", editor.getAbsolutePath(), textFile.getAbsolutePath()));

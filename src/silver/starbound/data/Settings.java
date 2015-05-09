@@ -8,7 +8,8 @@ import silver.starbound.util.PathUtil;
 
 public class Settings {
 	private File _starboundFolder;
-	private File _editor;
+	private File _textEditor;
+	private File _imageEditor;
 	private OperatingSystem _operationSystem;
 	
 	private Architecture _architecture;
@@ -16,8 +17,11 @@ public class Settings {
 	public File getStarboundFolder(){
 		return _starboundFolder;
 	}
-	public File getEditor(){
-		return _editor;
+	public File getTextEditor(){
+		return _textEditor;
+	}
+	public File getImageEditor(){
+		return _imageEditor;
 	}
 	public OperatingSystem getOperationSystem() {
 		return _operationSystem;
@@ -32,8 +36,11 @@ public class Settings {
 	public void setStarboundFolder(File starboundFolder){
 		this._starboundFolder = starboundFolder;
 	}
-	public void setEditor(File editor){
-		this._editor = editor;
+	public void setTextEditor(File editor){
+		this._textEditor = editor;
+	}
+	public void setImageEditor(File editor){
+		this._imageEditor = editor;
 	}
 	public void setOperationSystem(OperatingSystem operationSystem) {
 		this._operationSystem = operationSystem;
@@ -50,8 +57,11 @@ public class Settings {
 	public boolean isStarboundFolderValid(){
 		return _starboundFolder != null && _starboundFolder.isDirectory();
 	}
-	public boolean isEditorValid(){
-		return _editor != null && _editor.isFile();
+	public boolean isTextEditorValid(){
+		return _textEditor != null && _textEditor.isFile();
+	}
+	public boolean isImageEditorValid(){
+		return _imageEditor != null && _imageEditor.isFile();
 	}
 	public boolean isToolSettingValid(){
 		return !(getOperationSystem() == null || getOperationSystem() == OperatingSystem.UNKNOWN
@@ -61,7 +71,7 @@ public class Settings {
 	public Settings clone(){
 		Settings clone = new Settings();
 		
-		clone.setEditor(getEditor());
+		clone.setTextEditor(getTextEditor());
 		clone.setStarboundFolder(getStarboundFolder());
 		clone.setArchitecture(getArchitecture());
 		clone.setOperationSystem(getOperationSystem());

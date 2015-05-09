@@ -50,7 +50,8 @@ public class SettingsDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtStrbndFolder;
-	private JTextField txtEditor;
+	private JTextField txtTextEditor;
+	private JTextField txtImageEditor;
 	
 	private Settings currentSettings;
 	private DialogResult result = DialogResult.CANCEL;
@@ -82,9 +83,9 @@ public class SettingsDialog extends JDialog {
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		GridBagLayout gbl_contentPanel = new GridBagLayout();
 		gbl_contentPanel.columnWidths = new int[]{0, 0, 0, 0, 0};
-		gbl_contentPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		contentPanel.setLayout(gbl_contentPanel);
 		
 		JLabel lblStrbndFolder = new JLabel("Starbound folder:");
@@ -147,28 +148,28 @@ public class SettingsDialog extends JDialog {
 		gbc_btnStrbndFolderFind.gridy = 1;
 		contentPanel.add(btnStrbndFolderFind, gbc_btnStrbndFolderFind);
 		
-		JLabel lblEditor = new JLabel("Text editor:");
-		GridBagConstraints gbc_lblEditor = new GridBagConstraints();
-		gbc_lblEditor.anchor = GridBagConstraints.WEST;
-		gbc_lblEditor.insets = new Insets(0, 0, 5, 5);
-		gbc_lblEditor.gridx = 0;
-		gbc_lblEditor.gridy = 2;
-		contentPanel.add(lblEditor, gbc_lblEditor);
+		JLabel lblTextEditor = new JLabel("Text editor:");
+		GridBagConstraints gbc_lblTextEditor = new GridBagConstraints();
+		gbc_lblTextEditor.anchor = GridBagConstraints.WEST;
+		gbc_lblTextEditor.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTextEditor.gridx = 0;
+		gbc_lblTextEditor.gridy = 2;
+		contentPanel.add(lblTextEditor, gbc_lblTextEditor);
 		
-		txtEditor = new JTextField();
-		txtEditor.setText((String) null);
-		txtEditor.setEditable(false);
-		txtEditor.setColumns(20);
-		GridBagConstraints gbc_txtEditor = new GridBagConstraints();
-		gbc_txtEditor.gridwidth = 2;
-		gbc_txtEditor.insets = new Insets(0, 0, 5, 5);
-		gbc_txtEditor.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtEditor.gridx = 1;
-		gbc_txtEditor.gridy = 2;
-		contentPanel.add(txtEditor, gbc_txtEditor);
+		txtTextEditor = new JTextField();
+		txtTextEditor.setText((String) null);
+		txtTextEditor.setEditable(false);
+		txtTextEditor.setColumns(20);
+		GridBagConstraints gbc_txtTextEditor = new GridBagConstraints();
+		gbc_txtTextEditor.gridwidth = 2;
+		gbc_txtTextEditor.insets = new Insets(0, 0, 5, 5);
+		gbc_txtTextEditor.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtTextEditor.gridx = 1;
+		gbc_txtTextEditor.gridy = 2;
+		contentPanel.add(txtTextEditor, gbc_txtTextEditor);
 		
-		JButton btnEditor = new JButton("Browse");
-		btnEditor.addActionListener(new ActionListener() {
+		JButton btnTextEditor = new JButton("Browse");
+		btnTextEditor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				File modFolder = selectFile();
 				if(modFolder != null){
@@ -176,19 +177,55 @@ public class SettingsDialog extends JDialog {
 				}
 			}
 		});
-		GridBagConstraints gbc_btnEditor = new GridBagConstraints();
-		gbc_btnEditor.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnEditor.insets = new Insets(0, 0, 5, 0);
-		gbc_btnEditor.gridx = 3;
-		gbc_btnEditor.gridy = 2;
-		contentPanel.add(btnEditor, gbc_btnEditor);
+		GridBagConstraints gbc_btnTextEditor = new GridBagConstraints();
+		gbc_btnTextEditor.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnTextEditor.insets = new Insets(0, 0, 5, 0);
+		gbc_btnTextEditor.gridx = 3;
+		gbc_btnTextEditor.gridy = 2;
+		contentPanel.add(btnTextEditor, gbc_btnTextEditor);
+		
+		JLabel lblImageEditor = new JLabel("Image editor:");
+		GridBagConstraints gbc_lblImageEditor = new GridBagConstraints();
+		gbc_lblImageEditor.anchor = GridBagConstraints.WEST;
+		gbc_lblImageEditor.insets = new Insets(0, 0, 5, 5);
+		gbc_lblImageEditor.gridx = 0;
+		gbc_lblImageEditor.gridy = 3;
+		contentPanel.add(lblImageEditor, gbc_lblImageEditor);
+		
+		txtImageEditor = new JTextField();
+		txtImageEditor.setText((String) null);
+		txtImageEditor.setEditable(false);
+		txtImageEditor.setColumns(20);
+		GridBagConstraints gbc_txtImageEditor = new GridBagConstraints();
+		gbc_txtImageEditor.gridwidth = 2;
+		gbc_txtImageEditor.insets = new Insets(0, 0, 5, 5);
+		gbc_txtImageEditor.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtImageEditor.gridx = 1;
+		gbc_txtImageEditor.gridy = 3;
+		contentPanel.add(txtImageEditor, gbc_txtImageEditor);
+		
+		JButton btnImageEditor = new JButton("Browse");
+		btnImageEditor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File modFolder = selectFile();
+				if(modFolder != null){
+					setImageEditor(modFolder);
+				}
+			}
+		});
+		GridBagConstraints gbc_btnImageEditor = new GridBagConstraints();
+		gbc_btnImageEditor.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnImageEditor.insets = new Insets(0, 0, 5, 0);
+		gbc_btnImageEditor.gridx = 3;
+		gbc_btnImageEditor.gridy = 3;
+		contentPanel.add(btnImageEditor, gbc_btnImageEditor);
 		
 		JLabel lblOperatingSystem = new JLabel("Operating system:");
 		GridBagConstraints gbc_lblOperatingSystem = new GridBagConstraints();
 		gbc_lblOperatingSystem.anchor = GridBagConstraints.EAST;
 		gbc_lblOperatingSystem.insets = new Insets(0, 0, 5, 5);
 		gbc_lblOperatingSystem.gridx = 0;
-		gbc_lblOperatingSystem.gridy = 3;
+		gbc_lblOperatingSystem.gridy = 4;
 		contentPanel.add(lblOperatingSystem, gbc_lblOperatingSystem);
 		
 		cmbBoxOperatingSystem = new JComboBox<OperatingSystem>();
@@ -207,7 +244,7 @@ public class SettingsDialog extends JDialog {
 		gbc_cmbBoxOperatingSystem.insets = new Insets(0, 0, 5, 5);
 		gbc_cmbBoxOperatingSystem.fill = GridBagConstraints.HORIZONTAL;
 		gbc_cmbBoxOperatingSystem.gridx = 1;
-		gbc_cmbBoxOperatingSystem.gridy = 3;
+		gbc_cmbBoxOperatingSystem.gridy = 4;
 		contentPanel.add(cmbBoxOperatingSystem, gbc_cmbBoxOperatingSystem);
 		
 		JLabel lblArchitecture = new JLabel("Architecture:");
@@ -215,7 +252,7 @@ public class SettingsDialog extends JDialog {
 		gbc_lblArchitecture.anchor = GridBagConstraints.WEST;
 		gbc_lblArchitecture.insets = new Insets(0, 0, 5, 5);
 		gbc_lblArchitecture.gridx = 0;
-		gbc_lblArchitecture.gridy = 4;
+		gbc_lblArchitecture.gridy = 5;
 		contentPanel.add(lblArchitecture, gbc_lblArchitecture);
 		
 		cmbBoxArchitecture = new JComboBox<Architecture>();
@@ -234,7 +271,7 @@ public class SettingsDialog extends JDialog {
 		gbc_cmbBoxArchitecture.insets = new Insets(0, 0, 5, 5);
 		gbc_cmbBoxArchitecture.fill = GridBagConstraints.HORIZONTAL;
 		gbc_cmbBoxArchitecture.gridx = 1;
-		gbc_cmbBoxArchitecture.gridy = 4;
+		gbc_cmbBoxArchitecture.gridy = 5;
 		contentPanel.add(cmbBoxArchitecture, gbc_cmbBoxArchitecture);
 		
 		JLabel lblToolFolder = new JLabel("Tool folder:");
@@ -242,7 +279,7 @@ public class SettingsDialog extends JDialog {
 		gbc_lblToolFolder.anchor = GridBagConstraints.WEST;
 		gbc_lblToolFolder.insets = new Insets(0, 0, 0, 5);
 		gbc_lblToolFolder.gridx = 0;
-		gbc_lblToolFolder.gridy = 5;
+		gbc_lblToolFolder.gridy = 6;
 		contentPanel.add(lblToolFolder, gbc_lblToolFolder);
 		
 		txtToolFolder = new JTextField();
@@ -252,7 +289,7 @@ public class SettingsDialog extends JDialog {
 		gbc_txtToolFolder.insets = new Insets(0, 0, 0, 5);
 		gbc_txtToolFolder.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtToolFolder.gridx = 1;
-		gbc_txtToolFolder.gridy = 5;
+		gbc_txtToolFolder.gridy = 6;
 		contentPanel.add(txtToolFolder, gbc_txtToolFolder);
 		txtToolFolder.setColumns(20);
 
@@ -284,7 +321,7 @@ public class SettingsDialog extends JDialog {
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		
 		setStarboundFolder(currentSettings.getStarboundFolder());
-		setTextEditor(currentSettings.getEditor());
+		setTextEditor(currentSettings.getTextEditor());
 		cmbBoxOperatingSystem.setSelectedItem(currentSettings.getOperationSystem());
 		cmbBoxArchitecture.setSelectedItem(currentSettings.getArchitecture());
 		
@@ -304,12 +341,20 @@ public class SettingsDialog extends JDialog {
 		refreshToolPath();
 	}
 	private void setTextEditor(File editor){
-		currentSettings.setEditor(editor);
+		currentSettings.setTextEditor(editor);
 		
-		if(currentSettings.getEditor() != null)
-			txtEditor.setText(currentSettings.getEditor().getAbsolutePath());
+		if(currentSettings.getTextEditor() != null)
+			txtTextEditor.setText(currentSettings.getTextEditor().getAbsolutePath());
 		else
-			txtEditor.setText("");
+			txtTextEditor.setText("");
+	}
+	private void setImageEditor(File editor){
+		currentSettings.setImageEditor(editor);
+		
+		if(currentSettings.getImageEditor() != null)
+			txtImageEditor.setText(currentSettings.getImageEditor().getAbsolutePath());
+		else
+			txtImageEditor.setText("");
 	}
 	private void setOperatingSystem(OperatingSystem operatingSystem){
 		currentSettings.setOperationSystem(operatingSystem);

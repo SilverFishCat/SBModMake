@@ -28,9 +28,9 @@ public class SettingsUtil {
 		
 		String textEditorPath = node.get(PREFERENCES_TEXT_EDIOR_KEY, null);
 		if(textEditorPath != null)
-			result.setEditor(new File(textEditorPath));
+			result.setTextEditor(new File(textEditorPath));
 		else
-			result.setEditor(null);
+			result.setTextEditor(null);
 		
 		String operatingSystemString = node.get(PREFERENCES_OPERATING_SYSTEM_KEY, OSUtil.getOS().toString());
 		if(operatingSystemString != null){
@@ -66,8 +66,8 @@ public class SettingsUtil {
 		if(settings.getStarboundFolder() != null)
 			node.put(PREFERENCES_STARBOUND_FOLDER_KEY, settings.getStarboundFolder().getAbsolutePath());
 
-		if(settings.getEditor() != null)
-			node.put(PREFERENCES_TEXT_EDIOR_KEY, settings.getEditor().getAbsolutePath());
+		if(settings.getTextEditor() != null)
+			node.put(PREFERENCES_TEXT_EDIOR_KEY, settings.getTextEditor().getAbsolutePath());
 		
 		if(settings.getOperationSystem() != null)
 			node.put(PREFERENCES_OPERATING_SYSTEM_KEY, settings.getOperationSystem().toString());
