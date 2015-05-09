@@ -37,16 +37,33 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+/**
+ * A json tree model.
+ * Shows the structure of a json element.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class JsonTreeModel implements TreeModel {
 	private JsonElement _element;
 	private JsonTreeNode _root;
 	private Set<TreeModelListener> _listeners;
 	
+	/**
+	 * Create a new model from an element.
+	 * 
+	 * @param element The root element of this model.
+	 */
 	public JsonTreeModel(JsonElement element){
 		_listeners = new HashSet<>();
 		setElement(element);
 	}
 
+	/**
+	 * Set the root element to use to build the model.
+	 * 
+	 * @param element The new root element
+	 */
 	public void setElement(JsonElement element){
 		_element = element;
 		buildTree();
@@ -60,16 +77,37 @@ public class JsonTreeModel implements TreeModel {
 	public Object getRoot() {
 		return _root;
 	}
+	/**
+	 * Get the root element of the model.
+	 * 
+	 * @return The root element of the model
+	 */
 	public JsonElement getElement(){
 		return _element;
 	}
 	
+	/**
+	 * Build the underline tree in the model.
+	 */
 	private void buildTree(){
 		_root = buildJsonTreeNode(_element);
 	}
+	/**
+	 * Build a JsonTreeNode tree starting from the given element
+	 * @param element The element to build the tree from
+	 * @return The root node of the built tree
+	 */
 	private JsonTreeNode buildJsonTreeNode(JsonElement element) {
 		return buildJsonTreeNode(element, null);
 	}
+	/**
+	 * Build a JsonTreeNode tree starting from the given element, giving the root the
+	 * given name.
+	 * 
+	 * @param element The root element of the new tree
+	 * @param name The name to give the root element
+	 * @return The root node of the built tree
+	 */
 	private JsonTreeNode buildJsonTreeNode(JsonElement element, String name) {
 		List<JsonTreeNode> children = new ArrayList<JsonTreeNode>();
 		

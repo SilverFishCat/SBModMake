@@ -32,6 +32,14 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+/**
+ * Renders JTree cells that contain JsonTreeNodes.
+ * The renderer subclasses DefaultTreeCellRenderer to maintain the basic looks
+ * of a default JTree.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class JsonTreeCellRenderer extends DefaultTreeCellRenderer {
 	/**
 	 * 
@@ -46,6 +54,9 @@ public class JsonTreeCellRenderer extends DefaultTreeCellRenderer {
 	private Icon _nullIcon;
 	private Icon _unknownIcon;
 	
+	/**
+	 * Creates a new JsonTreeCellRenderer.
+	 */
 	public JsonTreeCellRenderer() {
 		_objectIcon = new ImageIcon("img\\jsonobjecticon.png");
 		_arrayIcon = new ImageIcon("img\\jsonarrayicon.png");
@@ -56,24 +67,59 @@ public class JsonTreeCellRenderer extends DefaultTreeCellRenderer {
 		_unknownIcon = new ImageIcon("img\\jsonunknownicon.png");
 	}
 
+	/**
+	 * Override the default icon used for a JsonObject.
+	 * 
+	 * @param icon The icon to use
+	 */
 	public void setObjectIcon(Icon icon){
 		this._objectIcon = icon;
 	}
+	/**
+	 * Override the default icon used for a JsonArray.
+	 * 
+	 * @param icon The icon to use
+	 */
 	public void setArrayIcon(Icon icon){
 		this._arrayIcon = icon;
 	}
+	/**
+	 * Override the default icon used for a JsonPrimitive string.
+	 * 
+	 * @param icon The icon to use
+	 */
 	public void setStringIcon(Icon icon){
 		this._stringIcon = icon;
 	}
+	/**
+	 * Override the default icon used for a JsonPrimitive number.
+	 * 
+	 * @param icon The icon to use
+	 */
 	public void setNumberIcon(Icon icon){
 		this._numberIcon = icon;
 	}
+	/**
+	 * Override the default icon used for a JsonPrimitive boolean.
+	 * 
+	 * @param icon The icon to use
+	 */
 	public void setBooleanIcon(Icon icon){
 		this._booleanIcon = icon;
 	}
+	/**
+	 * Override the default icon used for a JsonNull.
+	 * 
+	 * @param icon The icon to use
+	 */
 	public void setNullIcon(Icon icon){
 		this._nullIcon = icon;
 	}
+	/**
+	 * Override the default icon used for an unknown object in the tree.
+	 * 
+	 * @param icon The icon to use
+	 */
 	public void setUnknownIcon(Icon icon){
 		this._unknownIcon = icon;
 	}
@@ -90,6 +136,11 @@ public class JsonTreeCellRenderer extends DefaultTreeCellRenderer {
 		return result;
 	}
 	
+	/**
+	 * Get the item for the given JsonElement.
+	 * @param element The element to get the icon for
+	 * @return The icon of the given element
+	 */
 	private Icon getIconForJsonElement(JsonElement element){
 		try{
 			if(element.isJsonObject())

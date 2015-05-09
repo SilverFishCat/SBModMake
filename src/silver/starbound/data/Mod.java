@@ -33,6 +33,12 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
+/**
+ * A container for mod details.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class Mod {
 	private static final String JSON_NAME_KEY = "name";
 	private static final String JSON_FOLDER_PATH_KEY = "folder";
@@ -42,26 +48,57 @@ public class Mod {
 	private File _folder;
 	private String _modInfo;
 	
+	/**
+	 * Create a new mod details container.
+	 */
 	public Mod(){
 		_name = null;
 		_folder = null;
 		_modInfo = null;
 	}
+	/**
+	 * Create a new mod details container.
+	 * 
+	 * @param name The name of the mod
+	 * @param folder The folder of the mod
+	 * @param modInfo The name of the modinfo file
+	 */
 	public Mod(String name, File folder, String modInfo){
 		_name = name;
 		_folder = folder;
 		_modInfo = modInfo;
 	}
 	
+	/**
+	 * Get the name of the mod.
+	 * 
+	 * @return The mod's name
+	 */
 	public String getName() {
 		return _name;
 	}
+	/**
+	 * Get the mod's folder.
+	 * Returns null if none set.
+	 * 
+	 * @return The mod's folder
+	 */
 	public File getFolder() {
 		return _folder;
 	}
+	/**
+	 * Get the name of the modinfo file.
+	 * 
+	 * @return The name of the modinfo file, if set
+	 */
 	public String getModInfo() {
 		return _modInfo;
 	}
+	/**
+	 * Get the mod info file.
+	 * 
+	 * @return The mod's modinfo file, or null if the mod info file can not be resolved
+	 */
 	public File getModinfoFile(){
 		if(getFolder() != null && getModInfo() != null)
 			return new File(getFolder(), getModInfo());
@@ -69,32 +106,72 @@ public class Mod {
 			return null;
 	}
 	
+	/**
+	 * Set the name of the mod.
+	 * 
+	 * @param name The new name of the mod
+	 */
 	public void setName(String name) {
 		this._name = name;
 	}
+	/**
+	 * Set the folder of the mod.
+	 * 
+	 * @param folder The folder of the mod
+	 */
 	public void setFolder(File folder) {
 		this._folder = folder;
 	}
+	/**
+	 * Set the modinfo file name.
+	 * 
+	 * @param modInfo The name of the mod info
+	 */
 	public void setModInfo(String modInfo) {
 		this._modInfo = modInfo;
 	}
 	
+	/**
+	 * Check if the name of the mod is valid.
+	 * 
+	 * @return True if the name is not null or empty, false otherwise
+	 */
 	public boolean isNameValid(){
 		return _name != null && !_name.trim().isEmpty();
 	}
+	/**
+	 * Check if the folder is valid directory.
+	 * 
+	 * @return True if the folder is not null and is a directory
+	 */
 	public boolean isFolderValid(){
 		return getFolder() != null && getFolder().isDirectory();
 	}
+	/**
+	 * Check if the modinfo filename is valid.
+	 * 
+	 * @return True if the mod folder is valid and the modinfo filename is valid
+	 */
 	public boolean isModInfoValid(){
 		return isFolderValid() && _modInfo != null && !_modInfo.trim().isEmpty();
 	}
 	
+	/**
+	 * Generate a default save name for the mod.
+	 * 
+	 * @return The mod's default save name 
+	 */
 	public String getDefaultModSaveFileName(){
 		if(isNameValid())
 			return _name + ".save";
 		else
 			return "mod.save";
 	}
+	/**
+	 * Get a json representing the mod infromation.
+	 * 
+	 * @return A json represention of this mod
+	 */
 	public JsonObject getJSON(){
 		JsonObject result = new JsonObject();
 		
@@ -104,10 +181,24 @@ public class Mod {
 		
 		return result;
 	}
-	public static Mod parseJSON(String jsonString) throws IllegalArgumentException, JsonParseException{
+	/**
+	 * Convert a json string into a Mod object
+	 *  
+	 * @param jsonString The json string to convert to a mod object
+	 * @return The mod object stored in the json string
+	 * @throws JsonParseException Thrown if the json object can not be parsed correctly
+	 */
+	public static Mod parseJSON(String jsonString) throws JsonParseException{
 		return parseJSON(new JsonParser().parse(jsonString));
 	}
-	public static Mod parseJSON(JsonElement jsonElement) throws IllegalArgumentException, JsonParseException{
+	/**
+	 * Convert a json element into a Mod object.
+	 * 
+	 * @param jsonElement The json element to convert
+	 * @return A mod object that was represented by the json object
+	 * @throws JsonParseException Thrown if the json object can not be parsed correctly
+	 */
+	public static Mod parseJSON(JsonElement jsonElement) throws JsonParseException{
 		JsonObject jsonObject = jsonElement.getAsJsonObject();
 		String name = null;
 		File folder = null;
@@ -126,6 +217,13 @@ public class Mod {
 		
 		return new Mod(name, folder, modinfo);
 	}
+	/**
+	 * Save the mod into a file
+	 * 
+	 * @param file The target to save into
+	 * @throws IllegalArgumentException File is not writable
+	 * @throws IOException An error in writing occured
+	 */
 	public void saveToFile(File file) throws IllegalArgumentException, IOException{
 		boolean created = file.createNewFile();
 		try{
@@ -152,6 +250,15 @@ public class Mod {
 			throw ex;
 		}
 	}
+	/**
+	 * Load a Mod object from file
+	 * 
+	 * @param file The file to load
+	 * @return The mod saved in the file
+	 * @throws IllegalArgumentException File is not readable
+	 * @throws IOException An error in reading the file
+	 * @throws JsonParseException The json object in the file was malformed
+	 */
 	public static Mod loadFromFile(File file) throws IllegalArgumentException, IOException, JsonParseException{
 		if(file.canRead()){
 			FileReader reader = null;

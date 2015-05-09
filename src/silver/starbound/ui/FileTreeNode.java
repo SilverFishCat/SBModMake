@@ -26,6 +26,13 @@ import java.io.File;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+/**
+ * A file node to be used in a DefaultTreeModel, wrapping a File object.
+ * Overrides the toString function to show the file name.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class FileTreeNode extends DefaultMutableTreeNode {
 	/**
 	 * 
@@ -34,14 +41,25 @@ public class FileTreeNode extends DefaultMutableTreeNode {
 	
 	private File _file;
 
+	/**
+	 * Create a new TreeNode from a file.
+	 * 
+	 * @param file The file of this node
+	 */
 	public FileTreeNode(File file){
 		_file = file;
 	}
 	
+	/**
+	 * Get the file of this node.
+	 * 
+	 * @return The file of this node
+	 */
 	public File getFile(){
 		return _file;
 	}
 	
+	@Override
 	public String toString(){
 		return _file == null ? "" : _file.getName();
 	}

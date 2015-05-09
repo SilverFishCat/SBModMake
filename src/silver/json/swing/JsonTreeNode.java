@@ -27,20 +27,50 @@ import java.util.List;
 
 import com.google.gson.JsonElement;
 
+/**
+ * A node in a json tree.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class JsonTreeNode {
 	private JsonElement _value;
 	private String _elementName;
 	private List<JsonTreeNode> _children;
 	
+	/**
+	 * Create a new json tree node.
+	 * 
+	 * @param value The json element of this node
+	 */
 	public JsonTreeNode(JsonElement value){
 		this(value, (String)null);
 	}
+	/**
+	 * Create a new json tree node.
+	 * 
+	 * @param value The json element of this node
+	 * @param elementName The name of the element
+	 */
 	public JsonTreeNode(JsonElement value, String elementName){
 		this(value, null, elementName);
 	}
+	/**
+	 * Create a new json tree node.
+	 * 
+	 * @param value The json element of this node
+	 * @param children The children nodes of the new node
+	 */
 	public JsonTreeNode(JsonElement value, List<JsonTreeNode> children){
 		this(value, children, null);
 	}
+	/**
+	 * Create a new json tree node.
+	 * 
+	 * @param value The json element of this node
+	 * @param children The children nodes of the new node
+	 * @param elementName The name of the element
+	 */
 	public JsonTreeNode(JsonElement value, List<JsonTreeNode> children, String elementName){
 		this._value = value;
 		
@@ -55,13 +85,28 @@ public class JsonTreeNode {
 			this._children = new ArrayList<>(children);
 	}
 	
+	/**
+	 * Get the json element of this node.
+	 * 
+	 * @return The json element of this node
+	 */
 	public JsonElement getValue(){
 		return _value;
 	}
+	/**
+	 * Get all the child nodes of this node.
+	 * 
+	 * @return This node's children nodes
+	 */
 	public List<JsonTreeNode> getChildren(){
 		return new ArrayList<>(_children);
 	}
 	
+	/**
+	 * Check if the node is a leaf node.
+	 * 
+	 * @return True if a json primitive or null, false otherwise
+	 */
 	public boolean isLeaf(){
 		return (!_value.isJsonArray()) && (!_value.isJsonObject());
 	}

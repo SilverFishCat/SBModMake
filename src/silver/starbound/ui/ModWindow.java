@@ -92,6 +92,13 @@ import javax.swing.border.TitledBorder;
 import java.awt.Color;
 import java.awt.FlowLayout;
 
+/**
+ * A window that displays the detail of a mod, as other components
+ * to manipulate a mod.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class ModWindow {
 	private JFrame frmModmake;
 	private JTextField txtModName;
@@ -602,13 +609,23 @@ public class ModWindow {
 		frmModmake.pack();
 	}
 
+	/**
+	 * Called when the checkbox status of automatic mod folder changes.
+	 * 
+	 * @param isAutomatic The new value of the checkbox
+	 */
 	private void onModFolderAutomaticChanged(boolean isAutomatic){
 		btnModFolder.setEnabled(!isAutomatic);
 		
 		if(isAutomatic){
-			setAutomaticFolderName();
+			setAutomaticFolder();
 		}
 	}
+	/**
+	 * Called when the checkbox status of automatic modinfo filename changes.
+	 * 
+	 * @param isAutomatic The new value of the checkbox
+	 */
 	private void onModinfoFilenameAutomaticChanged(boolean isAutomatic){
 		txtModinfoFilename.setEditable(!isAutomatic);
 		
@@ -616,31 +633,50 @@ public class ModWindow {
 			setAutomaticModinfoFilename();
 		}
 	}
+	/**
+	 * Called when the mod name changes.
+	 */
 	private void onModNameChanged(){
 		mod.setName(txtModName.getText());
 		
 		if(chckbxModFolderAutomatic.isSelected())
-			setAutomaticFolderName();
+			setAutomaticFolder();
 		
 		if(chckbxModinfoFolderAutomatic.isSelected())
 			setAutomaticModinfoFilename();
 	}
+	/**
+	 * Called when the modinfo file name changes.
+	 */
 	private void onModinfoFilenameChanged(){
 		mod.setModInfo(txtModinfoFilename.getText());
 		refreshModinfoButton();
 	}
+	/**
+	 * Called when the selection in the file tree changes.
+	 */
 	private void onTreeSelectionChanged(){
 		setSelectedFile(getSelectedFileFromFileTree());
 	}
 
-	private void setAutomaticFolderName(){
+	/**
+	 * Set the mod directory automatically.
+	 */
+	private void setAutomaticFolder(){
 		setModFolder(PathUtil.getModFolder(settings, mod.getName()));
 	}
+	/**
+	 * Set the file name of the modinfo file automatically.
+	 */
 	private void setAutomaticModinfoFilename(){
 		setModinfoFile(PathUtil.getModinfoFilename(mod.getName()));
 	}
-	private void setModFolder(File folder){
-		mod.setFolder(folder);
+	/**
+	 * Set the mod directory.
+	 * @param directory The new mod directory
+	 */
+	private void setModFolder(File directory){
+		mod.setFolder(directory);
 		if(mod.getFolder() != null)
 			txtModFolder.setText(mod.getFolder().getAbsolutePath());
 		else
@@ -650,6 +686,10 @@ public class ModWindow {
 		refreshModinfoButton();
 		refreshFilesLoadButton();
 	}
+	/**
+	 * Set the modinfo file name.
+	 * @param filename The new modinfo filename
+	 */
 	private void setModinfoFile(String filename){
 		mod.setModInfo(filename);
 		if(mod.getName() != null)
@@ -657,6 +697,10 @@ public class ModWindow {
 		else
 			txtModinfoFilename.setText("");
 	}
+	/**
+	 * Set the currently selected project file.
+	 * @param file The file selected
+	 */
 	private void setSelectedFile(File file){		
 		selectedFile = new TypedFile(file);
 		
@@ -690,6 +734,9 @@ public class ModWindow {
 		refreshFileDetailsPanel();
 	}
 	
+	/**
+	 * Refresh the settings of the mod folder create button.
+	 */
 	private void refreshModFolderCreateButton(){
 		if(mod.getFolder() != null && (!mod.getFolder().exists())){
 			btnCreateModFolder.setEnabled(true);
@@ -698,6 +745,9 @@ public class ModWindow {
 			btnCreateModFolder.setEnabled(false);
 		}
 	}
+	/**
+	 * Refresh the settings of the modinfo button.
+	 */
 	private void refreshModinfoButton(){
 		// Mod folder is valid
 		if(!mod.isFolderValid()){
@@ -733,6 +783,9 @@ public class ModWindow {
 			}
 		}
 	}
+	/**
+	 * Refresh the files list with the files in the mod folder.
+	 */
 	private void refreshFilesList(){
 		if(mod.isFolderValid()){
 			DefaultMutableTreeNode root = new FileTreeNode(mod.getFolder());
@@ -743,9 +796,15 @@ public class ModWindow {
 			resetFilesList();
 		}
 	}
+	/**
+	 * Reset the files list to show no files.
+	 */
 	private void resetFilesList(){
 		treeFiles.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("N/A")));
 	}
+	/**
+	 * Refresh the files details panel with the file's details.
+	 */
 	private void refreshFileDetailsPanel(){		
 		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
 		
@@ -774,7 +833,13 @@ public class ModWindow {
 			btnFileEdit.setEnabled(false);
 		}
 	}
-	private void setEnabledRecursively(JComponent component, boolean enabled){
+	/**
+	 * Set the enabled state of a component and of all its children.
+	 * 
+	 * @param component The root component to set the state of
+	 * @param enabled The new enabled state
+	 */
+	private static void setEnabledRecursively(JComponent component, boolean enabled){
 		component.setEnabled(enabled);
 		
 		for (Component child : component.getComponents()) {
@@ -782,9 +847,15 @@ public class ModWindow {
 				setEnabledRecursively((JComponent) child, enabled);
 		}
 	}
+	/**
+	 * Refresh the settings of the file list refresh button.
+	 */
 	private void refreshFilesLoadButton(){
 		btnFilesLoad.setEnabled(mod.isFolderValid() && !mod.getFolder().equals(settings.getModsFolder()));
 	}
+	/**
+	 * Refresh the settings of the pack button.
+	 */
 	private void refreshPackButton(){
 		if(settings.isStarboundFolderValid()){
 			
@@ -793,6 +864,9 @@ public class ModWindow {
 			btnPack.setEnabled(false);
 		}
 	}
+	/**
+	 * Refresh the entire frame.
+	 */
 	private void refreshEntireFrame(){
 		refreshModFolderCreateButton();
 		refreshModinfoButton();
@@ -803,6 +877,9 @@ public class ModWindow {
 		
 		refreshFields();	
 	}
+	/**
+	 * Refresh the mod fields.
+	 */
 	private void refreshFields(){
 		if(mod.getName() != null){
 			txtModName.setText(mod.getName());
@@ -815,6 +892,12 @@ public class ModWindow {
 		}
 	}
 	
+	/**
+	 * Select a directory.
+	 * Opens a dialog to allow the user to select a directory.
+	 * 
+	 * @return A directory selected by the user, null if user cancelled
+	 */
 	private File selectDirectory(){
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -828,15 +911,39 @@ public class ModWindow {
 			return null;
 		}
 	}
+	/**
+	 * Select a file.
+	 * Opens a dialog to allow the user to select a file.
+	 * 
+	 * @param title The title of the dialog
+	 * @return A file selected by the user, null if user cancelled
+	 */
 	private File selectFile(String title){
 		return selectFile(title, null);
 	}
 	/*private File selectFileFromDirectory(String title, File directory){
 		return selectFile(title, directory, null);
 	}*/
+	/**
+	 * Select a file.
+	 * Opens a dialog to allow the user to select a file.
+	 * 
+	 * @param title The title of the dialog
+	 * @param defaultFile The default file choosen
+	 * @return A file selected by the user, null if user cancelled
+	 */
 	private File selectFile(String title, File defaultFile){
 		return selectFile(title, null, defaultFile);
 	}
+	/**
+	 * Select a file.
+	 * Opens a dialog to allow the user to select a file.
+	 * 
+	 * @param title The title of the dialog
+	 * @param directory The directory to look in
+	 * @param defaultFile The default file choosen
+	 * @return A file selected by the user, null if user cancelled
+	 */
 	private File selectFile(String title, File directory, File defaultFile){
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -855,6 +962,12 @@ public class ModWindow {
 			return null;
 		}
 	}
+	/**
+	 * Create the modinfo file.
+	 * 
+	 * @param file The possibly non-existant modinfo file to create
+	 * @return True if file created, false otherwise
+	 */
 	private boolean createModInfoFile(File file){
 		String errorTitle = "Can't create modinfo file";
 		boolean created = createFile(file);
@@ -903,6 +1016,12 @@ public class ModWindow {
 			return false;
 		}
 	}
+	/**
+	 * Create a file.
+	 * 
+	 * @param file The file to create
+	 * @return True if file create, false otherwise
+	 */
 	private boolean createFile(File file){
 		try {
 			return file.createNewFile();
@@ -912,6 +1031,11 @@ public class ModWindow {
 			return false;
 		}
 	}
+	/**
+	 * Open file for editing, using the text editor set.
+	 * 
+	 * @param textFile The file to edit
+	 */
 	private void editTextFile(File textFile){
 		File editor = settings.getTextEditor();
 		
@@ -922,6 +1046,11 @@ public class ModWindow {
 			JOptionPane.showMessageDialog(frmModmake, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
 		}
 	}
+	/**
+	 * Open file for editing, using the image editor set.
+	 * 
+	 * @param imageFile The file to edit
+	 */
 	private void editImageFile(File imageFile){
 		File editor = settings.getImageEditor();
 		
@@ -932,11 +1061,23 @@ public class ModWindow {
 			JOptionPane.showMessageDialog(frmModmake, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
 		}
 	}
+	/**
+	 * Open a dialog showing the given json element.
+	 * 
+	 * @param json The json element to display
+	 * @param title The title of the dialog
+	 */
 	private void showJsonObjectDialog(JsonElement json, String title) {
 		JsonViewerDialog dialog = new JsonViewerDialog(json, title);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setVisible(true);
 	}
+	/**
+	 * Builds the file tree from the given directory.
+	 * 
+	 * @param currentNode The current node on which the tree is being built
+	 * @param directory The directory of the current node.
+	 */
 	private void buildTree(DefaultMutableTreeNode currentNode, File directory){
 		for (File file : directory.listFiles()) {
 			DefaultMutableTreeNode fileNode = new FileTreeNode(file);
@@ -945,6 +1086,11 @@ public class ModWindow {
 				buildTree(fileNode, file);
 		}
 	}
+	/**
+	 * Get the file selected in the tree.
+	 * 
+	 * @return The selected file in the tree
+	 */
 	private File getSelectedFileFromFileTree(){
 		TreePath selectionPath = treeFiles.getSelectionPath();
 		if(selectionPath != null){
@@ -956,6 +1102,9 @@ public class ModWindow {
 		}
 		return null;
 	}
+	/**
+	 * Pack the mod using the starbound asset packet tool.
+	 */
 	private void packMod(){
 		final String ERROR_MESSAGE = "Error packing mods";
 		File packer = PathUtil.getPacker(settings);

@@ -36,6 +36,11 @@ public class SettingsUtil {
 	private static final String PREFERENCES_OPERATING_SYSTEM_KEY = "operating_system";
 	private static final String PREFERENCES_ARCHITECTURE_KEY = "architecture";
 	
+	/**
+	 * Load the settings from preferences.
+	 * 
+	 * @return The settings in the preferences, null for every setting missing 
+	 */
 	public static Settings loadSettings(){
 		Settings result = new Settings();
 		
@@ -83,6 +88,11 @@ public class SettingsUtil {
 		return result;
 	}
 
+	/**
+	 * Save the settings into the preferences.
+	 * 
+	 * @param settings The settings to save
+	 */
 	public static void saveSettings(Settings settings){
 		Preferences node = Preferences.userRoot().node(PREFERENCES_NODE_NAME);
 		if(settings.getStarboundFolder() != null)

@@ -31,38 +31,106 @@ import org.apache.tika.Tika;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
+/**
+ * A class representing a file with a known file.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class TypedFile {
+	/**
+	 * A possible type of a file.
+	 * 
+	 * @author SilverFishCat
+	 *
+	 */
 	public enum FileType{
+		/**
+		 * A json file type.
+		 */
 		JSON,
+		/**
+		 * An image file type.
+		 */
 		IMAGE,
+		/**
+		 * A text file type.
+		 */
 		TEXT,
+		/**
+		 * File type is unknown.
+		 */
 		UNKNOWN
 	}
+	/**
+	 * The file.
+	 */
 	public File _file;
+	/**
+	 * The type of the file.
+	 */
 	private FileType _type;
 	
+	/**
+	 * Create a new typed file.
+	 * Gets the type of the file dynamically.
+	 * 
+	 * @param file The file to encapsulate
+	 */
 	public TypedFile(File file){
 		_file = file;
 		_type = getFileType(_file);
 	}
+	/**
+	 * Create a new typed file.
+	 * 
+	 * @param file The file to encapsulate
+	 * @param type The type of the file
+	 */
 	public TypedFile(File file, FileType type){
 		_file = file;
 		_type = type;
 	}
 	
+	/**
+	 * Get the underlying file.
+	 * 
+	 * @return The underlying file
+	 */
 	public File getFile(){
 		return _file;
 	}
+	/**
+	 * Get the file type.
+	 * 
+	 * @return The file type
+	 */
 	public FileType getFileType(){
 		return _type;
 	}
+	/**
+	 * Set the underlying file.
+	 * 
+	 * @param file The file to set
+	 */
 	public void setFile(File file){
 		_file = file;
 	}
+	/**
+	 * Set the file type.
+	 * 
+	 * @param type The new file type
+	 */
 	public void setFileType(FileType type){
 		_type = type;
 	}
 	
+	/**
+	 * Get the type of this file.
+	 * 
+	 * @param file The file whose type will be found
+	 * @return The type of the file, UNKNOWN if can not detect file type
+	 */
 	public static FileType getFileType(File file){
 		FileType result = FileType.UNKNOWN;
 		

@@ -59,12 +59,24 @@ import silver.starbound.util.OSUtil.OperatingSystem;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
+/**
+ * A dialog for displaying and editing settings.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class SettingsDialog extends JDialog {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 900094647442468743L;
 	
+	/**
+	 * Possible results of a dialog.
+	 * 
+	 * @author SilverFishCat
+	 *
+	 */
 	public enum DialogResult{
 		OK,
 		CANCEL
@@ -81,15 +93,27 @@ public class SettingsDialog extends JDialog {
 	private JComboBox<Architecture> cmbBoxArchitecture;
 	private JTextField txtToolFolder;
 	
+	/**
+	 * Get the settings container in this dialog.
+	 * 
+	 * @return The settings container in this dialog
+	 */
 	public Settings getSettings(){
 		return currentSettings;
 	}
+	/**
+	 * Get the result of the dialog.
+	 * 
+	 * @return OK if user wishes to use the new settints, CANCEL otherwise
+	 */
 	public DialogResult getDialogResult(){
 		return result;
 	}
 
 	/**
 	 * Create the dialog.
+	 * 
+	 * @param lastSetting The settings set before starting the dialog
 	 */
 	public SettingsDialog(Settings lastSetting) {
 		setResizable(false);
@@ -352,8 +376,13 @@ public class SettingsDialog extends JDialog {
 		refreshForm();
 	}
 	
-	private void setStarboundFolder(File folder){
-		currentSettings.setStarboundFolder(folder);
+	/**
+	 * Set the starbound directory.
+	 * 
+	 * @param directory The starbound directory
+	 */
+	private void setStarboundFolder(File directory){
+		currentSettings.setStarboundFolder(directory);
 		
 		if(currentSettings.getStarboundFolder() != null)
 			txtStrbndFolder.setText(currentSettings.getStarboundFolder().getAbsolutePath());
@@ -362,6 +391,11 @@ public class SettingsDialog extends JDialog {
 		
 		refreshToolPath();
 	}
+	/**
+	 * Set the text editor.
+	 * 
+	 * @param editor The text editor
+	 */
 	private void setTextEditor(File editor){
 		currentSettings.setTextEditor(editor);
 		
@@ -370,6 +404,11 @@ public class SettingsDialog extends JDialog {
 		else
 			txtTextEditor.setText("");
 	}
+	/**
+	 * Set the image editor.
+	 * 
+	 * @param editor The image editor
+	 */
 	private void setImageEditor(File editor){
 		currentSettings.setImageEditor(editor);
 		
@@ -378,32 +417,56 @@ public class SettingsDialog extends JDialog {
 		else
 			txtImageEditor.setText("");
 	}
+	/**
+	 * Set the preferred operating system to get the tools for.
+	 * 
+	 * @param operatingSystem The operating system selected
+	 */
 	private void setOperatingSystem(OperatingSystem operatingSystem){
 		currentSettings.setOperationSystem(operatingSystem);
 		
 		refreshArchitectureComboBox();
 		refreshToolPath();
 	}
+	/**
+	 * Set the preferred architecture.
+	 * 
+	 * @param architecture The preferred architecture
+	 */
 	private void setArchitecture(Architecture architecture){
 		currentSettings.setArchitecture(architecture);
 		
 		refreshToolPath();
 	}
 	
+	/**
+	 * Refresh the settings of the architecture combo box.
+	 */
 	private void refreshArchitectureComboBox(){
 		cmbBoxArchitecture.setEnabled(currentSettings.isArchitectureSpecific());
 	}
+	/**
+	 * Refresh the settings generated tool directory path.
+	 */
 	private void refreshToolPath(){
 		if(currentSettings.isToolSettingValid())
 			txtToolFolder.setText(currentSettings.getToolFolder().getAbsolutePath());
 		else
 			txtToolFolder.setText("");
 	}
+	/**
+	 * Refresh the settings of the entire form.
+	 */
 	private void refreshForm(){
 		refreshArchitectureComboBox();
 		refreshToolPath();
 	}
-
+	
+	/**
+	 * Select a directory.
+	 * 
+	 * @return A directory selected by the user
+	 */
 	private File selectDirectory(){
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -417,6 +480,11 @@ public class SettingsDialog extends JDialog {
 			return null;
 		}
 	}
+	/**
+	 * Select a file
+	 * 
+	 * @return A file selected by the user
+	 */
 	private File selectFile(){
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);

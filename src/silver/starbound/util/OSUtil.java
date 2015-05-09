@@ -22,20 +22,55 @@
 
 package silver.starbound.util;
 
+/**
+ * Utilities for finding operating system details.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class OSUtil {
+	/**
+	 * Operating systems supported by starbound.
+	 * 
+	 * @author SilverFishCat
+	 *
+	 */
 	public enum OperatingSystem{
+		/**
+		 * Human operating system. Clunky, but does the job right.
+		 */
 		WINDOWS,
+		/**
+		 * A floran operating system. Strange and unfimiliar.
+		 */
 		LINUX,
+		/**
+		 * Apex operating system.
+		 */
 		OSX,
+		/**
+		 * Some operating systems are yet to be discovered.
+		 */
 		UNKNOWN
 	}
 
+	/**
+	 * Possible operating systems architectures.
+	 * 
+	 * @author SilverFishCat
+	 *
+	 */
 	public enum Architecture{
 		BIT32,
 		BIT64,
 		UNKNOWN
 	}
 	
+	/**
+	 * Tries to find the operating system of this machine.
+	 * 
+	 * @return The operating system as far as java knows.
+	 */
 	public static OperatingSystem getOS(){
 		String osName = System.getProperty("os.name");
 		if(osName.startsWith("Windows")){
@@ -51,6 +86,11 @@ public class OSUtil {
 			return OperatingSystem.UNKNOWN;
 		}
 	}
+	/**
+	 * Tries to find the architecture of this machine.
+	 * 
+	 * @return The architecture as far as java knows.
+	 */
 	public static Architecture getArchitecture(){
 		String archName = System.getProperty("os.arch");
 		if(archName.equals("x86"))

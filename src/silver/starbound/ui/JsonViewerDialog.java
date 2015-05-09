@@ -37,6 +37,12 @@ import javax.swing.JScrollPane;
 import silver.json.swing.JsonTreeCellRenderer;
 import silver.json.swing.JsonTreeModel;
 
+/**
+ * A dialog displaying a JsonElement inside a JTree component.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class JsonViewerDialog extends JDialog {
 	/**
 	 * 
@@ -50,11 +56,20 @@ public class JsonViewerDialog extends JDialog {
 
 	/**
 	 * Create the dialog.
+	 * 
+	 * @param element The json element to display as the root of the JTree
 	 * @wbp.parser.constructor
 	 */
 	public JsonViewerDialog(JsonElement element) {
 		this(element, null);
 	}
+	/**
+	 * Create the dialog.
+	 * Uses the given string as the dialog's title.
+	 * 
+	 * @param element The json element to display as the root of the JTree
+	 * @param title The dialog's title
+	 */
 	public JsonViewerDialog(JsonElement element, String title) {
 		if(title == null)
 			title = "";
@@ -79,9 +94,19 @@ public class JsonViewerDialog extends JDialog {
 		setJsonElement(element);
 	}
 	
+	/**
+	 * Get the json element displayed in the dialog.
+	 * 
+	 * @return The json element displayed in the dialog
+	 */
 	public JsonElement getJsonElement(){
 		return this._element;
 	}
+	/**
+	 * Set the json element to be displayed in the dialog.
+	 * 
+	 * @param element The new json element to display in the dialog
+	 */
 	public void setJsonElement(JsonElement element){
 		this._element = element;
 		
