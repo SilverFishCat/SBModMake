@@ -55,7 +55,7 @@ public class JsonTreeNode {
 			valueString = "null";
 		}
 		else{
-			valueString = null;
+			valueString = "";
 		}
 		
 		if(name == null || name.equals("")){
