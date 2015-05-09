@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -47,9 +48,14 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
@@ -456,6 +462,22 @@ public class ModWindow {
 		});
 		
 		btnFileOpenJson = new JButton("Open JSON");
+		btnFileOpenJson.addActionListener(new ActionListener() {
+			private static final String ERROR_TITLE = "Can not open json object dialog";
+			
+			public void actionPerformed(ActionEvent e) {
+				if(selectedFile.getFileType() == FileType.JSON){
+					try{
+						JsonElement jsonFile = new JsonParser().parse(new FileReader(selectedFile.getFile())); 
+						showJsonObjectDialog(jsonFile, selectedFile.getFile().getName());
+					}
+					catch(Exception exception){
+						exception.printStackTrace();
+						JOptionPane.showMessageDialog(frmModmake, exception.getMessage(), ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
 		pnlFileButtons.add(btnFileOpenJson);
 		
 		Component hsMid = Box.createHorizontalStrut(5);
@@ -503,7 +525,7 @@ public class ModWindow {
 		
 		frmModmake.pack();
 	}
-	
+
 	private void onModFolderAutomaticChanged(boolean isAutomatic){
 		btnModFolder.setEnabled(!isAutomatic);
 		
@@ -806,6 +828,11 @@ public class ModWindow {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(frmModmake, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	private void showJsonObjectDialog(JsonElement json, String title) {
+		JsonViewerDialog dialog = new JsonViewerDialog(json, title);
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setVisible(true);
 	}
 	private void buildTree(DefaultMutableTreeNode currentNode, File directory){
 		for (File file : directory.listFiles()) {
