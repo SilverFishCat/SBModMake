@@ -47,7 +47,10 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
@@ -59,7 +62,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.border.TitledBorder;
-
+import org.apache.tika.Tika;
 import java.awt.Color;
 import java.awt.FlowLayout;
 
@@ -547,12 +550,68 @@ public class ModWindow {
 		else
 			txtModinfoFilename.setText("");
 	}
+	private enum FileType{
+		JSON,
+		IMAGE,
+		TEXT,
+		UNKNOWN
+	}
+	private FileType selectedFileType;
 	private void setSelectedFile(File file){
 		selectedFile = file;
+		selectedFileType = FileType.UNKNOWN;
 		
 		if(file != null){
 			txtFileName.setText(selectedFile.getName());
-			txtFileType.setText("N/A");
+			
+			// Check if file is a json object
+			try{
+				new JsonParser().parse(String.join("", Files.readAllLines(file.toPath())));
+				selectedFileType = FileType.JSON;
+			}
+			catch(JsonParseException ex){
+				
+			} catch (IOException e) {
+				
+			}
+			
+			try{
+				if(selectedFileType == null){
+					String typeMIME = new Tika().detect(selectedFile);
+					
+					if(typeMIME != null){
+						if(typeMIME.endsWith("png"))
+							selectedFileType = FileType.IMAGE;
+						else if(typeMIME.startsWith("text/"))
+							selectedFileType = FileType.TEXT;
+					}
+				}
+			}
+			catch(IOException ex){
+				
+			}
+			
+			if(selectedFileType == null)
+				selectedFileType = FileType.UNKNOWN;
+			
+			switch (selectedFileType) {
+				case JSON:{
+					txtFileType.setText("JSON");
+				}
+				break;
+				case IMAGE:{
+					txtFileType.setText("Image");
+				}
+				break;
+				case TEXT:{
+					txtFileType.setText("Text");
+				}
+	
+				default:{
+					txtFileType.setText("N/A");
+				}
+				break;
+			}
 		}
 		else{
 			txtFileName.setText("N/A");
