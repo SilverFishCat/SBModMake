@@ -3,11 +3,20 @@ Mod maker for Starbound
 
 Currently, the application has only been tested on Windows, but aspires to work on all platform that starbound supports.
 
+## Purpose
+* Reduce common modding tasks into a one-click or no-click operations
+* Help modders organize mods
+* Standardize starbound mods, using the conventions already in place by the community
+* Give me something to do in my free time
+
 ## Features
 * Automaticly finds the starbound folder [Windows]
 * Makes packing mods easier (no CLI)
 * Easy mod management
 * Streamlines mod creation
+* Default star bound folders for all OSs
+* Save/load mod configurations
+* Easy opening of json, text and png files
 
 ## Usage
 
