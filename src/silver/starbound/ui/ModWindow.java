@@ -38,6 +38,7 @@ import javax.swing.tree.TreeSelectionModel;
 import silver.starbound.data.Mod;
 import silver.starbound.data.Settings;
 import silver.starbound.data.TypedFile;
+import silver.starbound.data.TypedFile.FileType;
 import silver.starbound.ui.SettingsDialog.DialogResult;
 import silver.starbound.util.*;
 
@@ -437,10 +438,20 @@ public class ModWindow {
 		btnFileEdit = new JButton("Edit Text");
 		pnlFileButtons.add(btnFileEdit);
 		btnFileEdit.addActionListener(new ActionListener() {
+			@SuppressWarnings("incomplete-switch")
 			public void actionPerformed(ActionEvent arg0) {
-				File selectedFile = getSelectedFileFromFileTree();
-				if(selectedFile != null)
-					editTextFile(selectedFile);
+				if(selectedFile.getFile() != null)
+					switch(selectedFile.getFileType()){
+						case JSON:
+						case TEXT:{
+							editTextFile(selectedFile.getFile());
+						}
+						break;
+						case IMAGE:{
+							editImageFile(selectedFile.getFile());
+						}
+						break;
+					}
 			}
 		});
 		
@@ -643,6 +654,27 @@ public class ModWindow {
 		synchronized (pnlFile.getTreeLock()) {
 			setEnabledRecursively(pnlFile, fileValid);
 		}
+		
+		boolean editorAvailable = false;
+		if(selectedFile.getFileType() != null){
+			switch (selectedFile.getFileType()) {
+				case IMAGE:
+					btnFileEdit.setText("Edit Image");
+					editorAvailable = settings.isImageEditorValid();
+					break;
+				case JSON:
+				case TEXT:
+					btnFileEdit.setText("Edit Text");
+					editorAvailable = settings.isTextEditorValid();
+					break;
+				default:
+					break;
+			}
+			btnFileEdit.setEnabled(selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
+		}
+		else{
+			btnFileEdit.setEnabled(false);
+		}
 	}
 	private void setEnabledRecursively(JComponent component, boolean enabled){
 		component.setEnabled(enabled);
@@ -762,7 +794,17 @@ public class ModWindow {
 			Runtime.getRuntime().exec(String.join(" ", editor.getAbsolutePath(), textFile.getAbsolutePath()));
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(frmModmake, "Folder already exists", "Can't open editor", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(frmModmake, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	private void editImageFile(File imageFile){
+		File editor = settings.getImageEditor();
+		
+		try {
+			Runtime.getRuntime().exec(String.join(" ", editor.getAbsolutePath(), imageFile.getAbsolutePath()));
+		} catch (IOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(frmModmake, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	private void buildTree(DefaultMutableTreeNode currentNode, File directory){
