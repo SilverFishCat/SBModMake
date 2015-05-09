@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -36,6 +37,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import silver.starbound.data.Mod;
 import silver.starbound.data.Settings;
+import silver.starbound.data.TypedFile;
 import silver.starbound.ui.SettingsDialog.DialogResult;
 import silver.starbound.util.*;
 
@@ -57,6 +59,10 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
+import javax.swing.border.TitledBorder;
+
+import java.awt.Color;
+import java.awt.FlowLayout;
 
 public class ModWindow {
 	private JFrame frmModmake;
@@ -69,12 +75,18 @@ public class ModWindow {
 	private JCheckBox chckbxModFolderAutomatic;
 	private JCheckBox chckbxModinfoFolderAutomatic;
 	private JTree treeFiles;
-	private JButton btnFilesEdit;
+	private JButton btnFileEdit;
 	private JButton btnPack;
+	private JButton btnFilesLoad;
+	private JButton btnFileOpenJson;
+	private JPanel pnlFile;
+	private JLabel txtFileName;
 	
 	private Mod mod;
 	private Settings settings;
-	private JButton btnFilesLoad;
+
+	private TypedFile selectedFile; 
+	private JLabel txtFileType;
 
 	/**
 	 * Launch the application.
@@ -104,6 +116,8 @@ public class ModWindow {
 		
 		settings = SettingsUtil.loadSettings();
 
+		selectedFile = new TypedFile(null);
+
 		chckbxModFolderAutomatic.setSelected(true);
 		chckbxModinfoFolderAutomatic.setSelected(true);
 		refreshEntireFrame();
@@ -121,7 +135,7 @@ public class ModWindow {
 			}
 		});
 		frmModmake.setTitle("ModMake");
-		frmModmake.setBounds(100, 100, 262, 237);
+		frmModmake.setBounds(100, 100, 548, 240);
 		frmModmake.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmModmake.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -138,9 +152,9 @@ public class ModWindow {
 		pnlMainContent.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		GridBagLayout gbl_pnlMainContent = new GridBagLayout();
 		gbl_pnlMainContent.columnWidths = new int[]{0, 0, 0};
-		gbl_pnlMainContent.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
-		gbl_pnlMainContent.columnWeights = new double[]{0.0, 1.0, 1.0};
-		gbl_pnlMainContent.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_pnlMainContent.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_pnlMainContent.columnWeights = new double[]{0.0, 1.0, 0.0};
+		gbl_pnlMainContent.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE, 0.0};
 		pnlMainContent.setLayout(gbl_pnlMainContent);
 		hbMainContainer.add(pnlMainContent);
 		
@@ -338,7 +352,7 @@ public class ModWindow {
 		scrlFiles.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		GridBagConstraints gbc_scrlFiles = new GridBagConstraints();
 		gbc_scrlFiles.insets = new Insets(0, 0, 0, 5);
-		gbc_scrlFiles.fill = GridBagConstraints.BOTH;
+		gbc_scrlFiles.fill = GridBagConstraints.HORIZONTAL;
 		gbc_scrlFiles.gridwidth = 2;
 		gbc_scrlFiles.gridx = 0;
 		gbc_scrlFiles.gridy = 6;
@@ -372,20 +386,66 @@ public class ModWindow {
 		btnFilesLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
 				refreshFilesList();
-				refreshFilesEditButton();
+				refreshFileDetailsPanel();
 			}
 		});
 		
-		btnFilesEdit = new JButton("Edit");
-		btnFilesEdit.addActionListener(new ActionListener() {
+		pnlFile = new JPanel();
+		pnlFile.setBorder(new TitledBorder(null, "File", TitledBorder.LEADING, TitledBorder.TOP, null, Color.BLACK));
+		GridBagConstraints gbc_pnlFile = new GridBagConstraints();
+		gbc_pnlFile.gridy = 7;
+		gbc_pnlFile.gridx = 0;
+		gbc_pnlFile.gridwidth = 3;
+		gbc_pnlFile.fill = GridBagConstraints.HORIZONTAL;
+		pnlMainContent.add(pnlFile, gbc_pnlFile);		
+		pnlFile.setLayout(new BorderLayout(0, 0));
+		
+		JPanel pnlFileDetail = new JPanel();
+		pnlFile.add(pnlFileDetail, BorderLayout.CENTER);
+		pnlFileDetail.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow(3)"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow(3)"),
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("fill:default"),
+				FormFactory.RELATED_GAP_ROWSPEC,}));
+		
+		JLabel lblFileName = new JLabel("Name:");
+		pnlFileDetail.add(lblFileName, "2, 2, left, default");
+		
+		txtFileName = new JLabel("N/A");
+		pnlFileDetail.add(txtFileName, "4, 2");
+		
+		JLabel lblFileType = new JLabel("Type:");
+		pnlFileDetail.add(lblFileType, "6, 2");
+		
+		txtFileType = new JLabel("N/A");
+		pnlFileDetail.add(txtFileType, "8, 2");
+		
+		JPanel pnlFileButtons = new JPanel();
+		FlowLayout fl_pnlFileButtons = (FlowLayout) pnlFileButtons.getLayout();
+		fl_pnlFileButtons.setAlignment(FlowLayout.RIGHT);
+		pnlFile.add(pnlFileButtons, BorderLayout.SOUTH);
+		
+		btnFileEdit = new JButton("Edit Text");
+		pnlFileButtons.add(btnFileEdit);
+		btnFileEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				File selectedFile = getSelectedFile();
+				File selectedFile = getSelectedFileFromFileTree();
 				if(selectedFile != null)
 					editTextFile(selectedFile);
 			}
 		});
-		pnlFilesButtons.add(btnFilesEdit, "1, 3");
 		
+		btnFileOpenJson = new JButton("Open JSON");
+		pnlFileButtons.add(btnFileOpenJson);
 		
 		Component hsMid = Box.createHorizontalStrut(5);
 		hbMainContainer.add(hsMid);
@@ -461,7 +521,7 @@ public class ModWindow {
 		refreshModinfoButton();
 	}
 	private void onTreeSelectionChanged(){
-		refreshFilesEditButton();
+		setSelectedFile(getSelectedFileFromFileTree());
 	}
 
 	private void setAutomaticFolderName(){
@@ -487,6 +547,38 @@ public class ModWindow {
 			txtModinfoFilename.setText(filename);
 		else
 			txtModinfoFilename.setText("");
+	}
+	private void setSelectedFile(File file){		
+		selectedFile = new TypedFile(file);
+		
+		if(file != null){
+			txtFileName.setText(selectedFile.getFile().getName());
+			
+			switch (selectedFile.getFileType()) {
+				case JSON:{
+					txtFileType.setText("JSON");
+				}
+				break;
+				case IMAGE:{
+					txtFileType.setText("Image");
+				}
+				break;
+				case TEXT:{
+					txtFileType.setText("Text");
+				}
+	
+				default:{
+					txtFileType.setText("N/A");
+				}
+				break;
+			}
+		}
+		else{
+			txtFileName.setText("N/A");
+			txtFileType.setText("N/A");
+		}
+	
+		refreshFileDetailsPanel();
 	}
 	
 	private void refreshModFolderCreateButton(){
@@ -545,9 +637,20 @@ public class ModWindow {
 	private void resetFilesList(){
 		treeFiles.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("N/A")));
 	}
-	private void refreshFilesEditButton(){
-		File selectedFile = getSelectedFile();
-		btnFilesEdit.setEnabled(selectedFile != null && selectedFile.isFile());
+	private void refreshFileDetailsPanel(){		
+		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
+		
+		synchronized (pnlFile.getTreeLock()) {
+			setEnabledRecursively(pnlFile, fileValid);
+		}
+	}
+	private void setEnabledRecursively(JComponent component, boolean enabled){
+		component.setEnabled(enabled);
+		
+		for (Component child : component.getComponents()) {
+			if(child instanceof JComponent)
+				setEnabledRecursively((JComponent) child, enabled);
+		}
 	}
 	private void refreshFilesLoadButton(){
 		btnFilesLoad.setEnabled(mod.isFolderValid() && !mod.getFolder().equals(PathUtil.getModFolder(settings.getStarboundFolder(), "")));
@@ -564,7 +667,7 @@ public class ModWindow {
 		refreshModFolderCreateButton();
 		refreshModinfoButton();
 		refreshFilesList();
-		refreshFilesEditButton();
+		refreshFileDetailsPanel();
 		refreshFilesLoadButton();
 		refreshPackButton();
 	}
@@ -670,7 +773,7 @@ public class ModWindow {
 				buildTree(fileNode, file);
 		}
 	}
-	private File getSelectedFile(){
+	private File getSelectedFileFromFileTree(){
 		TreePath selectionPath = treeFiles.getSelectionPath();
 		if(selectionPath != null){
 			Object endNode = selectionPath.getLastPathComponent();
