@@ -32,6 +32,9 @@ public class Settings {
 	public File getToolFolder() {
 		return PathUtil.getToolsFolder(this);
 	}
+	public File getModsFolder(){
+		return PathUtil.getModsFolder(this);
+	}
 	
 	public void setStarboundFolder(File starboundFolder){
 		this._starboundFolder = starboundFolder;

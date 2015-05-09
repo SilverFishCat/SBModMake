@@ -382,7 +382,7 @@ public class ModWindow {
 		gbc_pnlFilesButtons.gridy = 6;
 		pnlMainContent.add(pnlFilesButtons, gbc_pnlFilesButtons);
 		pnlFilesButtons.setLayout(new FormLayout(new ColumnSpec[] {
-				ColumnSpec.decode("71px"),},
+				ColumnSpec.decode("pref:grow"),},
 			new RowSpec[] {
 				RowSpec.decode("23px"),
 				FormFactory.RELATED_GAP_ROWSPEC,
@@ -490,6 +490,10 @@ public class ModWindow {
 			new RowSpec[] {
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,}));
 		
 		btnPack = new JButton("Pack");
@@ -501,8 +505,59 @@ public class ModWindow {
 		pnlButton.add(btnPack, "1, 1");
 		btnPack.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
+		JButton btnSave = new JButton("Save");
+		btnSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent pressEvent) {
+				final String ERROR_MESSAGE = "Can't save mod";
+				File targetDirectory;
+				if(mod.isFolderValid())
+					 targetDirectory = mod.getFolder();
+				else
+					targetDirectory = settings.getModsFolder();
+				
+				File file = selectFile("Select save file", new File(targetDirectory, mod.getDefaultModSaveFileName()));
+				if(file != null){
+					try {
+						mod.saveToFile(file);
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(frmModmake, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					} catch (IOException e) {
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(frmModmake, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
+		pnlButton.add(btnSave, "1, 3");
+		
+		JButton btnLoad = new JButton("Load");
+		btnLoad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent pressEvent) {
+				final String ERROR_MESSAGE = "Can't load mod";
+				File file = selectFile("Select save file", new File(settings.getModsFolder(), "mod.save"));
+				if(file != null){
+					try {
+						mod = Mod.loadFromFile(file);
+						
+						refreshEntireFrame();
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(frmModmake, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					} catch (IOException e) {
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(frmModmake, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					} catch (JsonParseException e){
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(frmModmake, "Error in json object:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
+		pnlButton.add(btnLoad, "1, 5");
+		
 		JButton btnSettings = new JButton("Settings");
-		pnlButton.add(btnSettings, "1, 3");
+		pnlButton.add(btnSettings, "1, 7");
 		btnSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				SettingsDialog dialog = new SettingsDialog(settings);
@@ -558,7 +613,7 @@ public class ModWindow {
 	}
 
 	private void setAutomaticFolderName(){
-		setModFolder(PathUtil.getModFolder(settings.getStarboundFolder(), mod.getName()));
+		setModFolder(PathUtil.getModFolder(settings, mod.getName()));
 	}
 	private void setAutomaticModinfoFilename(){
 		setModinfoFile(PathUtil.getModinfoFilename(mod.getName()));
@@ -707,7 +762,7 @@ public class ModWindow {
 		}
 	}
 	private void refreshFilesLoadButton(){
-		btnFilesLoad.setEnabled(mod.isFolderValid() && !mod.getFolder().equals(PathUtil.getModFolder(settings.getStarboundFolder(), "")));
+		btnFilesLoad.setEnabled(mod.isFolderValid() && !mod.getFolder().equals(settings.getModsFolder()));
 	}
 	private void refreshPackButton(){
 		if(settings.isStarboundFolderValid()){
@@ -724,6 +779,19 @@ public class ModWindow {
 		refreshFileDetailsPanel();
 		refreshFilesLoadButton();
 		refreshPackButton();
+		
+		refreshFields();	
+	}
+	private void refreshFields(){
+		if(mod.getName() != null){
+			txtModName.setText(mod.getName());
+		}
+		if(mod.getFolder() != null){
+			txtModFolder.setText(mod.getFolder().getAbsolutePath());
+	}
+		if(mod.getModInfo() != null){
+			txtModinfoFilename.setText(mod.getModInfo());
+		}
 	}
 	
 	private File selectDirectory(){
@@ -740,9 +808,23 @@ public class ModWindow {
 		}
 	}
 	private File selectFile(String title){
+		return selectFile(title, null);
+	}
+	/*private File selectFileFromDirectory(String title, File directory){
+		return selectFile(title, directory, null);
+	}*/
+	private File selectFile(String title, File defaultFile){
+		return selectFile(title, null, defaultFile);
+	}
+	private File selectFile(String title, File directory, File defaultFile){
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setDialogTitle(title);
+		if(defaultFile != null){
+			fc.setSelectedFile(defaultFile);
+		}
+		else if(directory != null)
+			fc.setCurrentDirectory(directory);
 		int dialogResult = fc.showOpenDialog(frmModmake);
 		
 		if(dialogResult == JFileChooser.APPROVE_OPTION){

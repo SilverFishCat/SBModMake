@@ -1,11 +1,35 @@
 package silver.starbound.data;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 public class Mod {
+	private static final String JSON_NAME_KEY = "name";
+	private static final String JSON_FOLDER_PATH_KEY = "folder";
+	private static final String JSON_MOD_INFO_KEY = "modinfo_filename";
+	
 	private String _name;
 	private File _folder;
 	private String _modInfo;
+	
+	public Mod(){
+		_name = null;
+		_folder = null;
+		_modInfo = null;
+	}
+	public Mod(String name, File folder, String modInfo){
+		_name = name;
+		_folder = folder;
+		_modInfo = modInfo;
+	}
 	
 	public String getName() {
 		return _name;
@@ -41,5 +65,91 @@ public class Mod {
 	}
 	public boolean isModInfoValid(){
 		return isFolderValid() && _modInfo != null && !_modInfo.trim().isEmpty();
+	}
+	
+	public String getDefaultModSaveFileName(){
+		if(isNameValid())
+			return _name + ".save";
+		else
+			return "mod.save";
+	}
+	public JsonObject getJSON(){
+		JsonObject result = new JsonObject();
+		
+		result.add(JSON_NAME_KEY, new JsonPrimitive(getName()));
+		result.add(JSON_FOLDER_PATH_KEY, new JsonPrimitive(getFolder().getAbsolutePath()));
+		result.add(JSON_MOD_INFO_KEY, new JsonPrimitive(getModInfo()));
+		
+		return result;
+	}
+	public static Mod parseJSON(String jsonString) throws IllegalArgumentException, JsonParseException{
+		return parseJSON(new JsonParser().parse(jsonString));
+	}
+	public static Mod parseJSON(JsonElement jsonElement) throws IllegalArgumentException, JsonParseException{
+		JsonObject jsonObject = jsonElement.getAsJsonObject();
+		String name = null;
+		File folder = null;
+		String modinfo = null;
+		
+		if(jsonObject.has(JSON_NAME_KEY)){
+			name = jsonObject.get(JSON_NAME_KEY).getAsString();
+		}
+		if(jsonObject.has(JSON_FOLDER_PATH_KEY)){
+			String folderPath = jsonObject.get(JSON_FOLDER_PATH_KEY).getAsString();
+			folder = new File(folderPath);
+		}
+		if(jsonObject.has(JSON_MOD_INFO_KEY)){
+			modinfo = jsonObject.get(JSON_MOD_INFO_KEY).getAsString();
+		}
+		
+		return new Mod(name, folder, modinfo);
+	}
+	public void saveToFile(File file) throws IllegalArgumentException, IOException{
+		boolean created = file.createNewFile();
+		try{
+			if(file.canWrite()){
+				FileWriter writer = null; 
+				try{
+					writer = new FileWriter(file);
+					
+					writer.write(getJSON().toString());
+				}
+				finally{
+					if(writer != null)
+						writer.close();
+				}
+			}
+			else{
+				throw new IllegalArgumentException("Can not write to file");
+			}
+		}
+		catch(Exception ex){
+			if(created)
+				file.delete();
+			
+			throw ex;
+		}
+	}
+	public static Mod loadFromFile(File file) throws IllegalArgumentException, IOException, JsonParseException{
+		if(file.canRead()){
+			FileReader reader = null;
+			try{
+				StringBuffer jsonStringBuffer = new StringBuffer();
+				char[] buffer = new char[1024];
+				reader = new FileReader(file);
+				int read = 0;
+				while((read = reader.read(buffer)) != -1){
+					jsonStringBuffer.append(String.valueOf(buffer, 0, read));
+				}
+				return parseJSON(jsonStringBuffer.toString());
+			}
+			finally{
+				if(reader != null)
+					reader.close();
+			}
+		}
+		else{
+			throw new IllegalArgumentException("Can not read file");
+		}
 	}
 }
