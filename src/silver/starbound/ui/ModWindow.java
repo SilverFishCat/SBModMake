@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import javax.swing.JPanel;
 import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.UIManager;
 
 import java.awt.Component;
 
@@ -130,6 +131,9 @@ public class ModWindow {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					// Set look and feel
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					
 					ModWindow window = new ModWindow();
 					window.frmModmake.setVisible(true);
 				} catch (Exception e) {
