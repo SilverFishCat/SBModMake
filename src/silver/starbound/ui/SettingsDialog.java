@@ -368,6 +368,7 @@ public class SettingsDialog extends JDialog {
 		
 		setStarboundFolder(currentSettings.getStarboundFolder());
 		setTextEditor(currentSettings.getTextEditor());
+		setImageEditor(currentSettings.getImageEditor());
 		cmbBoxOperatingSystem.setSelectedItem(currentSettings.getOperationSystem());
 		cmbBoxArchitecture.setSelectedItem(currentSettings.getArchitecture());
 		
