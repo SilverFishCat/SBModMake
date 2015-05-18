@@ -832,9 +832,11 @@ public class ModWindow {
 					break;
 			}
 			btnFileEdit.setEnabled(selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
+			btnFileOpenJson.setEnabled(selectedFile.getFileType() == FileType.JSON);
 		}
 		else{
 			btnFileEdit.setEnabled(false);
+			btnFileOpenJson.setEnabled(false);
 		}
 	}
 	/**
