@@ -22,8 +22,6 @@
 
 package silver.starbound.ui;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 
 import java.awt.BorderLayout;
@@ -37,8 +35,6 @@ import javax.swing.JTextField;
 import javax.swing.JPanel;
 import javax.swing.Box;
 import javax.swing.JLabel;
-import javax.swing.UIManager;
-
 import java.awt.Component;
 
 import javax.swing.JButton;
@@ -100,8 +96,12 @@ import java.awt.FlowLayout;
  * @author SilverFishCat
  *
  */
-public class ModWindow {
-	private JFrame frmModmake;
+public class ModWindow extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5116457126300886427L;
+	
 	private JTextField txtModName;
 	private JTextField txtModFolder;
 	private JTextField txtModinfoFilename;
@@ -117,43 +117,18 @@ public class ModWindow {
 	private JButton btnFileOpenJson;
 	private JPanel pnlFile;
 	private JLabel txtFileName;
-	
-	private Mod mod;
-	private Settings settings;
-
 	private TypedFile selectedFile; 
 	private JLabel txtFileType;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					// Set look and feel
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					
-					ModWindow window = new ModWindow();
-					window.frmModmake.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	
+	private Mod _mod;
 
 	/**
 	 * Create the application.
 	 */
-	public ModWindow() {
+	public ModWindow(Mod mod) {
 		initialize();
 		
-		mod = new Mod();
-		mod.setName("");
-		mod.setFolder(null);
-		
-		settings = SettingsUtil.loadSettings();
+		_mod = mod; 
 
 		selectedFile = new TypedFile(null);
 
@@ -166,26 +141,24 @@ public class ModWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmModmake = new JFrame();
-		frmModmake.addWindowListener(new WindowAdapter() {
+		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent closeEvent) {
-				SettingsUtil.saveSettings(settings);
+				SettingsUtil.saveSettings(Settings.getCurrentSettings());
+				// TODO: save when exiting settings screen
 			}
 		});
-		frmModmake.setTitle("ModMake");
-		frmModmake.setBounds(100, 100, 548, 240);
-		frmModmake.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmModmake.getContentPane().setLayout(new BorderLayout(0, 0));
+		setTitle("ModMake");
+		getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		Component hsCntWest = Box.createHorizontalStrut(20);
-		frmModmake.getContentPane().add(hsCntWest, BorderLayout.WEST);
+		getContentPane().add(hsCntWest, BorderLayout.WEST);
 		
 		Component hsCntEast = Box.createHorizontalStrut(20);
-		frmModmake.getContentPane().add(hsCntEast, BorderLayout.EAST);
+		getContentPane().add(hsCntEast, BorderLayout.EAST);
 		
 		Box hbMainContainer = Box.createHorizontalBox();
-		frmModmake.getContentPane().add(hbMainContainer, BorderLayout.CENTER);
+		getContentPane().add(hbMainContainer, BorderLayout.CENTER);
 		
 		JPanel pnlMainContent = new JPanel();
 		pnlMainContent.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -260,21 +233,21 @@ public class ModWindow {
 		btnCreateModFolder = new JButton("Create");
 		btnCreateModFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
-				if(mod.getFolder() == null){
-					JOptionPane.showMessageDialog(frmModmake, "No folder path set", "Can't create folder", JOptionPane.ERROR_MESSAGE);
+				if(_mod.getFolder() == null){
+					JOptionPane.showMessageDialog(ModWindow.this, "No folder path set", "Can't create folder", JOptionPane.ERROR_MESSAGE);
 				}
-				if(mod.isFolderValid()){
-					JOptionPane.showMessageDialog(frmModmake, "Folder already exists", "Can't create folder", JOptionPane.ERROR_MESSAGE);
+				if(_mod.isFolderValid()){
+					JOptionPane.showMessageDialog(ModWindow.this, "Folder already exists", "Can't create folder", JOptionPane.ERROR_MESSAGE);
 				}
 				else{
-					if(mod.getFolder().mkdirs()){
-						JOptionPane.showMessageDialog(frmModmake, "Folder created", "Success", JOptionPane.INFORMATION_MESSAGE);
+					if(_mod.getFolder().mkdirs()){
+						JOptionPane.showMessageDialog(ModWindow.this, "Folder created", "Success", JOptionPane.INFORMATION_MESSAGE);
 						refreshModFolderCreateButton();
 						refreshModinfoButton();
 						refreshFilesLoadButton();
 					}
 					else{
-						JOptionPane.showMessageDialog(frmModmake, "There was an error creating the folder", "Can't create folder", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ModWindow.this, "There was an error creating the folder", "Can't create folder", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -353,7 +326,7 @@ public class ModWindow {
 		btnModinfoFilename = new JButton("Create");
 		btnModinfoFilename.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
-				File modinfoFile = mod.getModinfoFile();
+				File modinfoFile = _mod.getModinfoFile();
 				if(!modinfoFile.exists()){
 					createModInfoFile(modinfoFile);
 				}
@@ -505,7 +478,7 @@ public class ModWindow {
 					}
 					catch(Exception exception){
 						exception.printStackTrace();
-						JOptionPane.showMessageDialog(frmModmake, exception.getMessage(), ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ModWindow.this, exception.getMessage(), ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -540,23 +513,23 @@ public class ModWindow {
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
-				final String ERROR_MESSAGE = "Can't save mod";
+				final String ERROR_MESSAGE = "Can't save _mod";
 				File targetDirectory;
-				if(mod.isFolderValid())
-					 targetDirectory = mod.getFolder();
+				if(_mod.isFolderValid())
+					 targetDirectory = _mod.getFolder();
 				else
-					targetDirectory = settings.getModsFolder();
+					targetDirectory = Settings.getCurrentSettings().getModsFolder();
 				
-				File file = selectFile("Select save file", new File(targetDirectory, mod.getDefaultModSaveFileName()));
+				File file = selectFile("Select save file", new File(targetDirectory, _mod.getDefaultModSaveFileName()));
 				if(file != null){
 					try {
-						mod.saveToFile(file);
+						_mod.saveToFile(file);
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(frmModmake, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ModWindow.this, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					} catch (IOException e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(frmModmake, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ModWindow.this, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -567,21 +540,21 @@ public class ModWindow {
 		btnLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
 				final String ERROR_MESSAGE = "Can't load mod";
-				File file = selectFile("Select save file", new File(settings.getModsFolder(), "mod.save"));
+				File file = selectFile("Select save file", new File(Settings.getCurrentSettings().getModsFolder(), "mod.save"));
 				if(file != null){
 					try {
-						mod = Mod.loadFromFile(file);
+						_mod = Mod.loadFromFile(file);
 						
 						refreshEntireFrame();
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(frmModmake, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ModWindow.this, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					} catch (IOException e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(frmModmake, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ModWindow.this, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					} catch (JsonParseException e){
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(frmModmake, "Error in json object:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ModWindow.this, "Error in json object:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -592,12 +565,12 @@ public class ModWindow {
 		pnlButton.add(btnSettings, "1, 7");
 		btnSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SettingsDialog dialog = new SettingsDialog(settings);
+				SettingsDialog dialog = new SettingsDialog(Settings.getCurrentSettings());
 				dialog.setModalityType(ModalityType.APPLICATION_MODAL);
 				dialog.setVisible(true);
 				
 				if(dialog.getDialogResult() == DialogResult.OK){
-					settings = dialog.getSettings();
+					Settings.setCurrentSettings(dialog.getSettings());
 					refreshEntireFrame();
 				}
 			}
@@ -605,12 +578,12 @@ public class ModWindow {
 		btnSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		Component hsCntNorth = Box.createVerticalStrut(20);
-		frmModmake.getContentPane().add(hsCntNorth, BorderLayout.NORTH);
+		getContentPane().add(hsCntNorth, BorderLayout.NORTH);
 		
 		Component hsCntSouth = Box.createVerticalStrut(20);
-		frmModmake.getContentPane().add(hsCntSouth, BorderLayout.SOUTH);
+		getContentPane().add(hsCntSouth, BorderLayout.SOUTH);
 		
-		frmModmake.pack();
+		pack();
 	}
 
 	/**
@@ -641,7 +614,7 @@ public class ModWindow {
 	 * Called when the mod name changes.
 	 */
 	private void onModNameChanged(){
-		mod.setName(txtModName.getText());
+		_mod.setName(txtModName.getText());
 		
 		if(chckbxModFolderAutomatic.isSelected())
 			setAutomaticFolder();
@@ -653,7 +626,7 @@ public class ModWindow {
 	 * Called when the modinfo file name changes.
 	 */
 	private void onModinfoFilenameChanged(){
-		mod.setModInfo(txtModinfoFilename.getText());
+		_mod.setModInfo(txtModinfoFilename.getText());
 		refreshModinfoButton();
 	}
 	/**
@@ -664,25 +637,25 @@ public class ModWindow {
 	}
 
 	/**
-	 * Set the mod directory automatically.
+	 * Set the _mod directory automatically.
 	 */
 	private void setAutomaticFolder(){
-		setModFolder(PathUtil.getModFolder(settings, mod.getName()));
+		setModFolder(PathUtil.getModFolder(Settings.getCurrentSettings(), _mod.getName()));
 	}
 	/**
 	 * Set the file name of the modinfo file automatically.
 	 */
 	private void setAutomaticModinfoFilename(){
-		setModinfoFile(PathUtil.getModinfoFilename(mod.getName()));
+		setModinfoFile(PathUtil.getModinfoFilename(_mod.getName()));
 	}
 	/**
 	 * Set the mod directory.
 	 * @param directory The new mod directory
 	 */
 	private void setModFolder(File directory){
-		mod.setFolder(directory);
-		if(mod.getFolder() != null)
-			txtModFolder.setText(mod.getFolder().getAbsolutePath());
+		_mod.setFolder(directory);
+		if(_mod.getFolder() != null)
+			txtModFolder.setText(_mod.getFolder().getAbsolutePath());
 		else
 			txtModFolder.setText("");
 		
@@ -695,8 +668,8 @@ public class ModWindow {
 	 * @param filename The new modinfo filename
 	 */
 	private void setModinfoFile(String filename){
-		mod.setModInfo(filename);
-		if(mod.getName() != null)
+		_mod.setModInfo(filename);
+		if(_mod.getName() != null)
 			txtModinfoFilename.setText(filename);
 		else
 			txtModinfoFilename.setText("");
@@ -742,7 +715,7 @@ public class ModWindow {
 	 * Refresh the settings of the mod folder create button.
 	 */
 	private void refreshModFolderCreateButton(){
-		if(mod.getFolder() != null && (!mod.getFolder().exists())){
+		if(_mod.getFolder() != null && (!_mod.getFolder().exists())){
 			btnCreateModFolder.setEnabled(true);
 		}
 		else{
@@ -754,19 +727,19 @@ public class ModWindow {
 	 */
 	private void refreshModinfoButton(){
 		// Mod folder is valid
-		if(!mod.isFolderValid()){
+		if(!_mod.isFolderValid()){
 			btnModinfoFilename.setEnabled(false);
 		}
 		// Mod name is valid
-		else if(!mod.isNameValid()){
+		else if(!_mod.isNameValid()){
 			btnModinfoFilename.setEnabled(false);
 		}
 		// Modinfo filename
-		else if(!mod.isModInfoValid()){
+		else if(!_mod.isModInfoValid()){
 			btnModinfoFilename.setEnabled(false);
 		}
 		else{
-			File ModinfoFile = mod.getModinfoFile();
+			File ModinfoFile = _mod.getModinfoFile();
 			
 			if(ModinfoFile.isDirectory()){
 				btnModinfoFilename.setEnabled(false);
@@ -777,7 +750,7 @@ public class ModWindow {
 				if(ModinfoFile.exists()){
 					btnModinfoFilename.setText("Edit");
 					
-					if(!settings.isTextEditorValid()){
+					if(!Settings.getCurrentSettings().isTextEditorValid()){
 						btnModinfoFilename.setEnabled(false);
 					}
 				}
@@ -791,9 +764,9 @@ public class ModWindow {
 	 * Refresh the files list with the files in the mod folder.
 	 */
 	private void refreshFilesList(){
-		if(mod.isFolderValid()){
-			DefaultMutableTreeNode root = new FileTreeNode(mod.getFolder());
-			buildTree(root, mod.getFolder());
+		if(_mod.isFolderValid()){
+			DefaultMutableTreeNode root = new FileTreeNode(_mod.getFolder());
+			buildTree(root, _mod.getFolder());
 			treeFiles.setModel(new DefaultTreeModel(root));
 		}
 		else{
@@ -821,12 +794,12 @@ public class ModWindow {
 			switch (selectedFile.getFileType()) {
 				case IMAGE:
 					btnFileEdit.setText("Edit Image");
-					editorAvailable = settings.isImageEditorValid();
+					editorAvailable = Settings.getCurrentSettings().isImageEditorValid();
 					break;
 				case JSON:
 				case TEXT:
 					btnFileEdit.setText("Edit Text");
-					editorAvailable = settings.isTextEditorValid();
+					editorAvailable = Settings.getCurrentSettings().isTextEditorValid();
 					break;
 				default:
 					break;
@@ -857,13 +830,13 @@ public class ModWindow {
 	 * Refresh the settings of the file list refresh button.
 	 */
 	private void refreshFilesLoadButton(){
-		btnFilesLoad.setEnabled(mod.isFolderValid() && !mod.getFolder().equals(settings.getModsFolder()));
+		btnFilesLoad.setEnabled(_mod.isFolderValid() && !_mod.getFolder().equals(Settings.getCurrentSettings().getModsFolder()));
 	}
 	/**
 	 * Refresh the settings of the pack button.
 	 */
 	private void refreshPackButton(){
-		if(settings.isStarboundFolderValid()){
+		if(Settings.getCurrentSettings().isStarboundFolderValid()){
 			
 		}
 		else{
@@ -887,14 +860,14 @@ public class ModWindow {
 	 * Refresh the mod fields.
 	 */
 	private void refreshFields(){
-		if(mod.getName() != null){
-			txtModName.setText(mod.getName());
+		if(_mod.getName() != null){
+			txtModName.setText(_mod.getName());
 		}
-		if(mod.getFolder() != null){
-			txtModFolder.setText(mod.getFolder().getAbsolutePath());
+		if(_mod.getFolder() != null){
+			txtModFolder.setText(_mod.getFolder().getAbsolutePath());
 	}
-		if(mod.getModInfo() != null){
-			txtModinfoFilename.setText(mod.getModInfo());
+		if(_mod.getModInfo() != null){
+			txtModinfoFilename.setText(_mod.getModInfo());
 		}
 	}
 	
@@ -908,7 +881,7 @@ public class ModWindow {
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fc.setDialogTitle("Select folder");
-		int dialogResult = fc.showOpenDialog(frmModmake);
+		int dialogResult = fc.showOpenDialog(this);
 		
 		if(dialogResult == JFileChooser.APPROVE_OPTION){
 			return fc.getSelectedFile();
@@ -959,7 +932,7 @@ public class ModWindow {
 		}
 		else if(directory != null)
 			fc.setCurrentDirectory(directory);
-		int dialogResult = fc.showOpenDialog(frmModmake);
+		int dialogResult = fc.showOpenDialog(this);
 		
 		if(dialogResult == JFileChooser.APPROVE_OPTION){
 			return fc.getSelectedFile();
@@ -985,14 +958,14 @@ public class ModWindow {
 					writer = new FileWriter(file);
 				} catch (IOException e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(frmModmake, e.getMessage(), errorTitle, JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, e.getMessage(), errorTitle, JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 				
 				try {
 					writer.write(
 							"{"										+ "\r\n" +
-							"\t\"name\" : \"" + mod.getName() + "\","	+ "\r\n" +
+							"\t\"name\" : \"" + _mod.getName() + "\","	+ "\r\n" +
 							"\t\"requires\" : [],"					+ "\r\n" +
 							"\t\"includes\" : []"						+ "\r\n" +
 						"}"											+ "\r\n"
@@ -1001,7 +974,7 @@ public class ModWindow {
 					return true;
 				} catch (IOException e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(frmModmake, e.getMessage(), errorTitle, JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, e.getMessage(), errorTitle, JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 				finally{
@@ -1013,12 +986,12 @@ public class ModWindow {
 				}
 			}
 			else{
-				JOptionPane.showMessageDialog(frmModmake, "Can't create file", errorTitle, JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Can't create file", errorTitle, JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 		}
 		else{
-			//JOptionPane.showMessageDialog(frmModmake, "Can't create file", "Can't create modinfo file", JOptionPane.ERROR_MESSAGE);
+			//JOptionPane.showMessageDialog(this, "Can't create file", "Can't create modinfo file", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}
@@ -1033,7 +1006,7 @@ public class ModWindow {
 			return file.createNewFile();
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(frmModmake, e.getMessage(), "Can't create file", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Can't create file", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}
@@ -1043,13 +1016,13 @@ public class ModWindow {
 	 * @param textFile The file to edit
 	 */
 	private void editTextFile(File textFile){
-		File editor = settings.getTextEditor();
+		File editor = Settings.getCurrentSettings().getTextEditor();
 		
 		try {
 			Runtime.getRuntime().exec(String.join(" ", editor.getAbsolutePath(), textFile.getAbsolutePath()));
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(frmModmake, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	/**
@@ -1058,13 +1031,13 @@ public class ModWindow {
 	 * @param imageFile The file to edit
 	 */
 	private void editImageFile(File imageFile){
-		File editor = settings.getImageEditor();
+		File editor = Settings.getCurrentSettings().getImageEditor();
 		
 		try {
 			Runtime.getRuntime().exec(String.join(" ", editor.getAbsolutePath(), imageFile.getAbsolutePath()));
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(frmModmake, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error in edit", "Can't open editor", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	/**
@@ -1113,20 +1086,20 @@ public class ModWindow {
 	 */
 	private void packMod(){
 		final String ERROR_MESSAGE = "Error packing mods";
-		File packer = PathUtil.getPacker(settings);
+		File packer = PathUtil.getPacker(Settings.getCurrentSettings());
 		
 		if(packer == null || !packer.exists()){
-			JOptionPane.showMessageDialog(frmModmake, "Asset packer not found", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Asset packer not found", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		
-		if(!mod.isNameValid()){
-			JOptionPane.showMessageDialog(frmModmake, "Mod name invalid", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+		if(!_mod.isNameValid()){
+			JOptionPane.showMessageDialog(this, "Mod name invalid", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		
-		if(!mod.isFolderValid()){
-			JOptionPane.showMessageDialog(frmModmake, "Mod folder invalid", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+		if(!_mod.isFolderValid()){
+			JOptionPane.showMessageDialog(this, "Mod folder invalid", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		
@@ -1136,10 +1109,10 @@ public class ModWindow {
 			return;
 		
 		try {
-			Runtime.getRuntime().exec(packer.getAbsolutePath() + " \"" + mod.getName() + "\" \"" + mod.getFolder() + "\" \"" + outputFolder.getAbsolutePath() + "\"");
+			Runtime.getRuntime().exec(packer.getAbsolutePath() + " \"" + _mod.getName() + "\" \"" + _mod.getFolder() + "\" \"" + outputFolder.getAbsolutePath() + "\"");
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(frmModmake, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
