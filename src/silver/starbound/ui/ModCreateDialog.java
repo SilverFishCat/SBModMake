@@ -77,13 +77,16 @@ public class ModCreateDialog extends JDialog {
 			listener = new DummyDialogResultListener();
 		_listener = listener;
 		
-		refreshFields();
+		chckbxModFolderAutomatic.setSelected(true);
+		chckbxModinfoFolderAutomatic.setSelected(true);
+		refreshDialog();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		setTitle("Create mod");
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		pnlDetails = new JPanel();
@@ -254,12 +257,16 @@ public class ModCreateDialog extends JDialog {
 		
 		if(chckbxModinfoFolderAutomatic.isSelected())
 			setAutomaticModinfoFilename();
+		
+		refreshDialogButtons();
 	}
 	/**
 	 * Called when the modinfo file name changes.
 	 */
 	private void onModinfoFilenameChanged(){
 		_mod.setModInfo(txtModinfoFilename.getText());
+		
+		refreshDialogButtons();
 	}
 
 	/**
@@ -284,6 +291,8 @@ public class ModCreateDialog extends JDialog {
 			txtModFolder.setText(_mod.getFolder().getAbsolutePath());
 		else
 			txtModFolder.setText("");
+		
+		refreshDialogButtons();
 	}
 	/**
 	 * Set the modinfo file name.
@@ -295,6 +304,8 @@ public class ModCreateDialog extends JDialog {
 			txtModinfoFilename.setText(filename);
 		else
 			txtModinfoFilename.setText("");
+		
+		refreshDialogButtons();
 	}
 	
 	/**
@@ -310,6 +321,22 @@ public class ModCreateDialog extends JDialog {
 		if(_mod.getModInfo() != null){
 			txtModinfoFilename.setText(_mod.getModInfo());
 		}
+	}
+	/**
+	 * Refresh the state of the dialog main buttons
+	 */
+	private void refreshDialogButtons(){
+		btnCreate.setEnabled(
+				_mod.getName() != null && !_mod.getName().equals("") &&
+				_mod.getFolder() != null &&
+				_mod.getModInfo() != null && !_mod.getModInfo().equals(""));
+	}
+	/**
+	 * Call all refresh methods of this dialog.
+	 */
+	private void refreshDialog(){
+		refreshFields();
+		refreshDialogButtons();
 	}
 	
 	/**

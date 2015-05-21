@@ -24,7 +24,6 @@ package silver.starbound.ui;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import silver.starbound.data.Mod;
@@ -54,7 +53,6 @@ public class MainMenuDialog extends JDialog {
 	 */
 	public MainMenuDialog() {
 		setTitle("ModMake");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.GLUE_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
