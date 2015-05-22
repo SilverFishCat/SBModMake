@@ -71,27 +71,20 @@ public class SettingsDialog extends JDialog {
 	 */
 	private static final long serialVersionUID = 900094647442468743L;
 	
-	/**
-	 * Possible results of a dialog.
-	 * 
-	 * @author SilverFishCat
-	 *
-	 */
-	public enum DialogResult{
-		OK,
-		CANCEL
+	public static interface DialogResultListener{
+		public void onSettingsCreated(Settings settings);
 	}
 
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtStrbndFolder;
 	private JTextField txtTextEditor;
 	private JTextField txtImageEditor;
-	
-	private Settings currentSettings;
-	private DialogResult result = DialogResult.CANCEL;
 	private JComboBox<OperatingSystem> cmbBoxOperatingSystem;
 	private JComboBox<Architecture> cmbBoxArchitecture;
 	private JTextField txtToolFolder;
+	
+	private Settings _settings;
+	private DialogResultListener _listener;
 	
 	/**
 	 * Get the settings container in this dialog.
@@ -99,15 +92,7 @@ public class SettingsDialog extends JDialog {
 	 * @return The settings container in this dialog
 	 */
 	public Settings getSettings(){
-		return currentSettings;
-	}
-	/**
-	 * Get the result of the dialog.
-	 * 
-	 * @return OK if user wishes to use the new settints, CANCEL otherwise
-	 */
-	public DialogResult getDialogResult(){
-		return result;
+		return _settings;
 	}
 
 	/**
@@ -115,13 +100,24 @@ public class SettingsDialog extends JDialog {
 	 * 
 	 * @param lastSetting The settings set before starting the dialog
 	 */
-	public SettingsDialog(Settings lastSetting) {
-		setResizable(false);
+	public SettingsDialog(Settings lastSetting, DialogResultListener listener) {
 		if(lastSetting != null){
-			currentSettings = lastSetting.clone();
+			_settings = lastSetting.clone();
 		}
 		else
-			currentSettings = new Settings();
+			_settings = new Settings();
+		
+		if(listener == null)
+			throw new NullPointerException("Listener can not be null");
+		_listener = listener;
+		
+		initialize();
+		
+		refreshForm();
+	}
+	
+	public void initialize(){
+		setResizable(false);
 		
 		setBounds(100, 100, 350, 200);
 		getContentPane().setLayout(new BorderLayout());
@@ -178,7 +174,7 @@ public class SettingsDialog extends JDialog {
 				if(starboundFolderPath != null){
 					File starboundFolder = new File(starboundFolderPath);
 					if(starboundFolder.isDirectory())
-						currentSettings.setStarboundFolder(starboundFolder);
+						_settings.setStarboundFolder(starboundFolder);
 					else
 						JOptionPane.showMessageDialog(contentPanel, "Found path, but path is invalid", ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 				}
@@ -346,8 +342,8 @@ public class SettingsDialog extends JDialog {
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				result = DialogResult.OK;
 				setVisible(false);
+				_listener.onSettingsCreated(_settings);
 			}
 		});
 		okButton.setActionCommand("OK");
@@ -357,7 +353,6 @@ public class SettingsDialog extends JDialog {
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				result = DialogResult.CANCEL;
 				setVisible(false);
 			}
 		});
@@ -366,15 +361,13 @@ public class SettingsDialog extends JDialog {
 
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		
-		setStarboundFolder(currentSettings.getStarboundFolder());
-		setTextEditor(currentSettings.getTextEditor());
-		setImageEditor(currentSettings.getImageEditor());
-		cmbBoxOperatingSystem.setSelectedItem(currentSettings.getOperationSystem());
-		cmbBoxArchitecture.setSelectedItem(currentSettings.getArchitecture());
+		setStarboundFolder(_settings.getStarboundFolder());
+		setTextEditor(_settings.getTextEditor());
+		setImageEditor(_settings.getImageEditor());
+		cmbBoxOperatingSystem.setSelectedItem(_settings.getOperationSystem());
+		cmbBoxArchitecture.setSelectedItem(_settings.getArchitecture());
 		
 		pack();
-		
-		refreshForm();
 	}
 	
 	/**
@@ -383,10 +376,10 @@ public class SettingsDialog extends JDialog {
 	 * @param directory The starbound directory
 	 */
 	private void setStarboundFolder(File directory){
-		currentSettings.setStarboundFolder(directory);
+		_settings.setStarboundFolder(directory);
 		
-		if(currentSettings.getStarboundFolder() != null)
-			txtStrbndFolder.setText(currentSettings.getStarboundFolder().getAbsolutePath());
+		if(_settings.getStarboundFolder() != null)
+			txtStrbndFolder.setText(_settings.getStarboundFolder().getAbsolutePath());
 		else
 			txtStrbndFolder.setText("");
 		
@@ -398,10 +391,10 @@ public class SettingsDialog extends JDialog {
 	 * @param editor The text editor
 	 */
 	private void setTextEditor(File editor){
-		currentSettings.setTextEditor(editor);
+		_settings.setTextEditor(editor);
 		
-		if(currentSettings.getTextEditor() != null)
-			txtTextEditor.setText(currentSettings.getTextEditor().getAbsolutePath());
+		if(_settings.getTextEditor() != null)
+			txtTextEditor.setText(_settings.getTextEditor().getAbsolutePath());
 		else
 			txtTextEditor.setText("");
 	}
@@ -411,10 +404,10 @@ public class SettingsDialog extends JDialog {
 	 * @param editor The image editor
 	 */
 	private void setImageEditor(File editor){
-		currentSettings.setImageEditor(editor);
+		_settings.setImageEditor(editor);
 		
-		if(currentSettings.getImageEditor() != null)
-			txtImageEditor.setText(currentSettings.getImageEditor().getAbsolutePath());
+		if(_settings.getImageEditor() != null)
+			txtImageEditor.setText(_settings.getImageEditor().getAbsolutePath());
 		else
 			txtImageEditor.setText("");
 	}
@@ -424,7 +417,7 @@ public class SettingsDialog extends JDialog {
 	 * @param operatingSystem The operating system selected
 	 */
 	private void setOperatingSystem(OperatingSystem operatingSystem){
-		currentSettings.setOperationSystem(operatingSystem);
+		_settings.setOperationSystem(operatingSystem);
 		
 		refreshArchitectureComboBox();
 		refreshToolPath();
@@ -435,7 +428,7 @@ public class SettingsDialog extends JDialog {
 	 * @param architecture The preferred architecture
 	 */
 	private void setArchitecture(Architecture architecture){
-		currentSettings.setArchitecture(architecture);
+		_settings.setArchitecture(architecture);
 		
 		refreshToolPath();
 	}
@@ -444,14 +437,14 @@ public class SettingsDialog extends JDialog {
 	 * Refresh the settings of the architecture combo box.
 	 */
 	private void refreshArchitectureComboBox(){
-		cmbBoxArchitecture.setEnabled(currentSettings.isArchitectureSpecific());
+		cmbBoxArchitecture.setEnabled(_settings.isArchitectureSpecific());
 	}
 	/**
 	 * Refresh the settings generated tool directory path.
 	 */
 	private void refreshToolPath(){
-		if(currentSettings.isToolSettingValid())
-			txtToolFolder.setText(currentSettings.getToolFolder().getAbsolutePath());
+		if(_settings.isToolSettingValid())
+			txtToolFolder.setText(_settings.getToolFolder().getAbsolutePath());
 		else
 			txtToolFolder.setText("");
 	}

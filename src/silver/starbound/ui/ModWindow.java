@@ -39,7 +39,6 @@ import java.awt.Component;
 
 import javax.swing.JButton;
 
-import java.awt.Dialog.ModalityType;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -59,7 +58,6 @@ import silver.starbound.data.Mod;
 import silver.starbound.data.Settings;
 import silver.starbound.data.TypedFile;
 import silver.starbound.data.TypedFile.FileType;
-import silver.starbound.ui.SettingsDialog.DialogResult;
 import silver.starbound.util.*;
 
 import java.awt.event.ItemListener;
@@ -141,13 +139,6 @@ public class ModWindow extends JFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent closeEvent) {
-				SettingsUtil.saveSettings(Settings.getCurrentSettings());
-				// TODO: save when exiting settings screen
-			}
-		});
 		setTitle("ModMake");
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -497,8 +488,6 @@ public class ModWindow extends JFrame {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,}));
 		
 		btnPack = new JButton("Pack");
@@ -560,22 +549,6 @@ public class ModWindow extends JFrame {
 			}
 		});
 		pnlButton.add(btnLoad, "1, 5");
-		
-		JButton btnSettings = new JButton("Settings");
-		pnlButton.add(btnSettings, "1, 7");
-		btnSettings.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				SettingsDialog dialog = new SettingsDialog(Settings.getCurrentSettings());
-				dialog.setModalityType(ModalityType.APPLICATION_MODAL);
-				dialog.setVisible(true);
-				
-				if(dialog.getDialogResult() == DialogResult.OK){
-					Settings.setCurrentSettings(dialog.getSettings());
-					refreshEntireFrame();
-				}
-			}
-		});
-		btnSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		Component hsCntNorth = Box.createVerticalStrut(20);
 		getContentPane().add(hsCntNorth, BorderLayout.NORTH);
