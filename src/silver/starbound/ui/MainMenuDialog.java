@@ -28,7 +28,7 @@ import javax.swing.JOptionPane;
 
 import silver.starbound.data.Mod;
 import silver.starbound.data.Settings;
-import silver.starbound.ui.ModCreateDialog.DialogResultListener;
+import silver.starbound.ui.ModCreationDialog.DialogResultListener;
 import silver.starbound.ui.util.FileUtil;
 
 import com.google.gson.JsonParseException;
@@ -42,6 +42,12 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * The main menu window for the applicaiton.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class MainMenuDialog extends JDialog {
 	/**
 	 * 
@@ -67,7 +73,7 @@ public class MainMenuDialog extends JDialog {
 		JButton btnCreateMod = new JButton("Create Mod");
 		btnCreateMod.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ModCreateDialog(new DialogResultListener() {
+				new ModCreationDialog(new DialogResultListener() {
 					@Override
 					public void onModCreated(Mod mod) {
 						new ModWindow(mod).setVisible(true);

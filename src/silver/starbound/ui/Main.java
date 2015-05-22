@@ -27,6 +27,12 @@ import javax.swing.UIManager;
 
 import silver.starbound.data.Settings;
 
+/**
+ * Entry point for the application.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class Main {
 	/**
 	 * Launch the application.

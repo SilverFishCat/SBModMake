@@ -1,3 +1,26 @@
+//The MIT License (MIT)
+//
+//Copyright (c) 2015 , SilverFishCat@GitHub
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
+
 package silver.starbound.ui;
 
 import java.awt.event.ActionEvent;
@@ -30,18 +53,27 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
-public class ModCreateDialog extends JDialog {
+/**
+ * A mod creation dialog.
+ * 
+ * @author SilverFishCat
+ *
+ */
+public class ModCreationDialog extends JDialog {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1892045175812091947L;
 	
+	/**
+	 * A dialog result listener for the mod creation dialog.
+	 * 
+	 * @author SilverFishCat
+	 *
+	 */
 	public static interface DialogResultListener{
 		public void onModCreated(Mod mod);
 		
-	}
-	private static class DummyDialogResultListener implements DialogResultListener{
-		public void onModCreated(Mod mod) { }
 	}
 	
 	private Mod _mod;
@@ -61,12 +93,20 @@ public class ModCreateDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 * @wbp.parser.constructor
+	 * 
+	 * @param listener The listener that will the receive the result of the edit.
 	 */
-	public ModCreateDialog(DialogResultListener listener) {
+	public ModCreationDialog(DialogResultListener listener) {
 		this(new Mod(), listener);
 	}
 	
-	public ModCreateDialog(Mod mod, DialogResultListener listener){
+	/**
+	 * Create a mod creation dialog, editing an existing mod object.
+	 * 
+	 * @param mod The mod to edit
+	 * @param listener
+	 */
+	public ModCreationDialog(Mod mod, DialogResultListener listener){
 		initialize();
 		
 		if(mod == null)
@@ -74,7 +114,7 @@ public class ModCreateDialog extends JDialog {
 		_mod = mod;
 		
 		if(listener == null)
-			listener = new DummyDialogResultListener();
+			throw new NullPointerException("Listener can not be null");
 		_listener = listener;
 		
 		chckbxModFolderAutomatic.setSelected(true);
@@ -184,7 +224,7 @@ public class ModCreateDialog extends JDialog {
 		btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ModCreateDialog.this.setVisible(false);
+				ModCreationDialog.this.setVisible(false);
 			}
 		});
 		pnlButtons.add(btnCancel);
@@ -192,7 +232,7 @@ public class ModCreateDialog extends JDialog {
 		btnCreate = new JButton("Create");
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ModCreateDialog.this.setVisible(false);
+				ModCreationDialog.this.setVisible(false);
 				_listener.onModCreated(_mod);
 			}
 		});
@@ -212,7 +252,7 @@ public class ModCreateDialog extends JDialog {
 		});
 		btnSelectModFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent pressEvent) {
-				File modFolder = FileUtil.selectDirectory(ModCreateDialog.this);
+				File modFolder = FileUtil.selectDirectory(ModCreationDialog.this);
 				if(modFolder != null){
 					setModFolder(modFolder);
 				}
