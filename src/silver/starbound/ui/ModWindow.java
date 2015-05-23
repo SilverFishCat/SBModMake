@@ -92,6 +92,7 @@ public class ModWindow extends JFrame {
 	private JMenuItem mntmFileOpenJson;
 	private JMenuItem mntmFileEdit;
 	private JPanel pnlFileDetail;
+	private JMenuItem mntmNewFile;
 
 	/**
 	 * Create the application.
@@ -111,6 +112,7 @@ public class ModWindow extends JFrame {
 	private void initialize() {
 		setTitle("ModMake");
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		JSplitPane splitPane = new JSplitPane();
 		getContentPane().add(splitPane);
@@ -235,8 +237,7 @@ public class ModWindow extends JFrame {
 		JMenuItem mntmRefresh = new JMenuItem("Refresh");
 		mntmRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				refreshFilesList();
-				refreshFileDetailsPanel();
+				onClickOnRefresh();
 			}
 		});
 		mnMod.add(mntmRefresh);
@@ -262,6 +263,45 @@ public class ModWindow extends JFrame {
 					}
 			}
 		});
+		
+		mntmNewFile = new JMenuItem("New...");
+		mntmNewFile.addActionListener(new ActionListener() {
+			private static final String ERROR_TITLE = "Can't create new file";
+			
+			public void actionPerformed(ActionEvent arg0) {
+				File targetDirectory = selectedFile.getFile();
+				
+				if(targetDirectory == null){
+					JOptionPane.showMessageDialog(ModWindow.this, "No target directory", ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				if(!targetDirectory.isDirectory())
+					targetDirectory = targetDirectory.getParentFile();
+				
+				String filename = JOptionPane.showInputDialog(ModWindow.this, "Select type name:");
+				if(filename != null){
+					try {
+						File newFile = new File(targetDirectory, filename);
+						
+						if(newFile.exists()){
+							JOptionPane.showMessageDialog(ModWindow.this, "File already exists", ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
+						}
+						else{
+							newFile.createNewFile();
+							onClickOnRefresh();
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(ModWindow.this, "Error in creating file", ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
+		mnFile.add(mntmNewFile);
+		
+		JSeparator separator_1 = new JSeparator();
+		mnFile.add(separator_1);
 		mnFile.add(mntmFileEdit);
 		
 		mntmFileOpenJson = new JMenuItem("Open JSON");
@@ -291,6 +331,13 @@ public class ModWindow extends JFrame {
 	 */
 	private void onTreeSelectionChanged(){
 		setSelectedFile(getSelectedFileFromFileTree());
+	}
+	/**
+	 * Called when the refresh button is pressed.
+	 */
+	private void onClickOnRefresh(){
+		refreshFilesList();
+		refreshFileDetailsComponenets();
 	}
 
 	/**
@@ -327,7 +374,7 @@ public class ModWindow extends JFrame {
 			txtFileType.setText("N/A");
 		}
 	
-		refreshFileDetailsPanel();
+		refreshFileDetailsComponenets();
 	}
 	
 	/**
@@ -352,7 +399,7 @@ public class ModWindow extends JFrame {
 	/**
 	 * Refresh the files details panel with the file's details.
 	 */
-	private void refreshFileDetailsPanel(){		
+	private void refreshFileDetailsComponenets(){		
 		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
 		
 		boolean editorAvailable = false;
@@ -377,6 +424,7 @@ public class ModWindow extends JFrame {
 			mntmFileEdit.setEnabled(false);
 			mntmFileOpenJson.setEnabled(false);
 		}
+		mntmNewFile.setEnabled(selectedFile != null);
 		
 		synchronized (pnlFileDetail.getTreeLock()) {
 			setEnabledRecursively(pnlFileDetail, fileValid);
@@ -417,7 +465,7 @@ public class ModWindow extends JFrame {
 	 */
 	private void refreshEntireFrame(){
 		refreshFilesList();
-		refreshFileDetailsPanel();
+		refreshFileDetailsComponenets();
 		refreshFilesLoadButton();
 		refreshPackButton();	
 	}
