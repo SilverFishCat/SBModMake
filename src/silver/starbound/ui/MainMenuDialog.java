@@ -79,6 +79,7 @@ public class MainMenuDialog extends JDialog {
 				SettingsUtil.saveSettings(Settings.getCurrentSettings());
 			}
 		});
+		setLocationRelativeTo(null);
 		
 		JButton btnCreateMod = new JButton("Create Mod");
 		btnCreateMod.addActionListener(new ActionListener() {
