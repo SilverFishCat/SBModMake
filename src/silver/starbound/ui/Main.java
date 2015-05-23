@@ -22,7 +22,6 @@
 
 package silver.starbound.ui;
 
-import javax.swing.JDialog;
 import javax.swing.UIManager;
 
 import silver.starbound.data.Settings;
@@ -45,8 +44,7 @@ public class Main {
 			// Load settings
 			Settings.loadSettings();
 			
-			MainMenuDialog dialog = new MainMenuDialog();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			MainMenuWindow dialog = new MainMenuWindow();
 			dialog.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();

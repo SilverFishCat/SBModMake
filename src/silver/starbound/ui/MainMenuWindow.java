@@ -23,7 +23,7 @@
 package silver.starbound.ui;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import silver.starbound.data.Mod;
@@ -43,6 +43,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.awt.Dimension;
 
 /**
  * The main menu window for the applicaiton.
@@ -50,7 +51,7 @@ import java.io.IOException;
  * @author SilverFishCat
  *
  */
-public class MainMenuDialog extends JDialog {
+public class MainMenuWindow extends JFrame {
 	/**
 	 * 
 	 */
@@ -59,7 +60,9 @@ public class MainMenuDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public MainMenuDialog() {
+	public MainMenuWindow() {
+		setMinimumSize(new Dimension(190, 0));
+		setResizable(false);
 		setTitle("ModMake");
 		getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.GLUE_COLSPEC,
@@ -80,6 +83,7 @@ public class MainMenuDialog extends JDialog {
 			}
 		});
 		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JButton btnCreateMod = new JButton("Create Mod");
 		btnCreateMod.addActionListener(new ActionListener() {
@@ -87,7 +91,7 @@ public class MainMenuDialog extends JDialog {
 				new ModCreationDialog(new ModCreationDialog.DialogResultListener() {
 					@Override
 					public void onModCreated(Mod mod) {
-						new ModWindow(mod).setVisible(true);
+						openMod(mod);
 					}
 				}).setVisible(true);;
 			}
@@ -98,21 +102,21 @@ public class MainMenuDialog extends JDialog {
 		btnLoadMod.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
 				final String ERROR_MESSAGE = "Can't load mod";
-				File file = FileUtil.selectFile(MainMenuDialog.this,"Select save file", new File(Settings.getCurrentSettings().getModsFolder(), "mod.save"));
+				File file = FileUtil.selectFile(MainMenuWindow.this,"Select save file", new File(Settings.getCurrentSettings().getModsFolder(), "mod.save"));
 				if(file != null){
 					try {
 						Mod mod = Mod.loadFromFile(file);
 						
-						new ModWindow(mod).setVisible(true);
+						openMod(mod);
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(MainMenuDialog.this, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(MainMenuWindow.this, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					} catch (IOException e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(MainMenuDialog.this, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(MainMenuWindow.this, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					} catch (JsonParseException e){
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(MainMenuDialog.this, "Error in json object:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(MainMenuWindow.this, "Error in json object:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -136,4 +140,9 @@ public class MainMenuDialog extends JDialog {
 		pack();
 	}
 
+	public void openMod(Mod mod){
+		ModWindow window = new ModWindow(mod);
+		window.setLocationRelativeTo(MainMenuWindow.this);
+		window.setVisible(true);
+	}
 }
