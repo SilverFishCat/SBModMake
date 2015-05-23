@@ -26,10 +26,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -62,13 +63,17 @@ import silver.starbound.util.PathUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.JSplitPane;
+import javax.swing.JPopupMenu;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * A window that displays the detail of a mod, as other components
@@ -89,15 +94,19 @@ public class ModWindow extends JFrame {
 	
 	private Mod _mod;
 	private JMenuItem mntmPack;
-	private JMenuItem mntmFileOpenJson;
-	private JMenuItem mntmFileEdit;
+	private List<JMenuItem> mntmsFileOpenJson;
+	private List<JMenuItem> mntmsFileEdit;
 	private JPanel pnlFileDetail;
-	private JMenuItem mntmNewFile;
+	private List<JMenuItem> mntmsNewFile;
 
 	/**
 	 * Create the application.
 	 */
 	public ModWindow(Mod mod) {
+		mntmsFileOpenJson = new ArrayList<>();
+		mntmsFileEdit = new ArrayList<>();
+		mntmsNewFile = new ArrayList<>();
+		
 		initialize();
 		
 		_mod = mod; 
@@ -113,58 +122,6 @@ public class ModWindow extends JFrame {
 		setTitle("ModMake");
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
-		JSplitPane splitPane = new JSplitPane();
-		getContentPane().add(splitPane);
-		
-		pnlFileDetail = new JPanel();
-		pnlFileDetail.setPreferredSize(new Dimension(400, 400));
-		splitPane.setRightComponent(pnlFileDetail);
-		pnlFileDetail.setBorder(new TitledBorder(null, "File", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		pnlFileDetail.setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow(3)"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow(3)"),
-				FormFactory.RELATED_GAP_COLSPEC,},
-			new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC,
-				RowSpec.decode("fill:default"),
-				FormFactory.RELATED_GAP_ROWSPEC,}));
-		
-		JLabel lblFileName = new JLabel("Name:");
-		pnlFileDetail.add(lblFileName, "2, 2, left, default");
-		
-		txtFileName = new JLabel("N/A");
-		pnlFileDetail.add(txtFileName, "4, 2");
-		
-		JLabel lblFileType = new JLabel("Type:");
-		pnlFileDetail.add(lblFileType, "6, 2");
-		
-		txtFileType = new JLabel("N/A");
-		pnlFileDetail.add(txtFileType, "8, 2");
-		
-		JPanel pnlFiles = new JPanel();
-		pnlFiles.setPreferredSize(new Dimension(200, 400));
-		splitPane.setLeftComponent(pnlFiles);
-		pnlFiles.setLayout(new BoxLayout(pnlFiles, BoxLayout.X_AXIS));
-		
-		JScrollPane scrlFiles = new JScrollPane();
-		pnlFiles.add(scrlFiles);
-		scrlFiles.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
-		treeFiles = new JTree();
-		treeFiles.addTreeSelectionListener(new TreeSelectionListener() {
-			public void valueChanged(TreeSelectionEvent selectionEvent) {
-				onTreeSelectionChanged();
-			}
-		});
-		treeFiles.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		scrlFiles.setViewportView(treeFiles);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -245,26 +202,70 @@ public class ModWindow extends JFrame {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		mntmFileEdit = new JMenuItem("Edit Text");
-		mntmFileEdit.addActionListener(new ActionListener() {
-			@SuppressWarnings("incomplete-switch")
-			public void actionPerformed(ActionEvent e) {
-				if(selectedFile.getFile() != null)
-					switch(selectedFile.getFileType()){
-						case JSON:
-						case TEXT:{
-							editTextFile(selectedFile.getFile());
-						}
-						break;
-						case IMAGE:{
-							editImageFile(selectedFile.getFile());
-						}
-						break;
-					}
+		addFileButtons(mnFile);
+		
+		JSplitPane splitPane = new JSplitPane();
+		getContentPane().add(splitPane);
+		
+		pnlFileDetail = new JPanel();
+		pnlFileDetail.setPreferredSize(new Dimension(400, 400));
+		splitPane.setRightComponent(pnlFileDetail);
+		pnlFileDetail.setBorder(new TitledBorder(null, "File", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		pnlFileDetail.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow(3)"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow(3)"),
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("fill:default"),
+				FormFactory.RELATED_GAP_ROWSPEC,}));
+		
+		JLabel lblFileName = new JLabel("Name:");
+		pnlFileDetail.add(lblFileName, "2, 2, left, default");
+		
+		txtFileName = new JLabel("N/A");
+		pnlFileDetail.add(txtFileName, "4, 2");
+		
+		JLabel lblFileType = new JLabel("Type:");
+		pnlFileDetail.add(lblFileType, "6, 2");
+		
+		txtFileType = new JLabel("N/A");
+		pnlFileDetail.add(txtFileType, "8, 2");
+		
+		JPanel pnlFiles = new JPanel();
+		pnlFiles.setPreferredSize(new Dimension(200, 400));
+		splitPane.setLeftComponent(pnlFiles);
+		pnlFiles.setLayout(new BoxLayout(pnlFiles, BoxLayout.X_AXIS));
+		
+		JScrollPane scrlFiles = new JScrollPane();
+		pnlFiles.add(scrlFiles);
+		scrlFiles.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		treeFiles = new JTree();
+		treeFiles.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent selectionEvent) {
+				onTreeSelectionChanged();
 			}
 		});
+		treeFiles.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		scrlFiles.setViewportView(treeFiles);
 		
-		mntmNewFile = new JMenuItem("New...");
+		JPopupMenu popupMenu = new JPopupMenu();
+		addPopup(treeFiles, popupMenu);
+		
+		addFileButtons(popupMenu);
+		
+		pack();
+	}
+
+	private void addFileButtons(JComponent mnMenu) {
+		JMenuItem mntmNewFile = new JMenuItem("New...");
 		mntmNewFile.addActionListener(new ActionListener() {
 			private static final String ERROR_TITLE = "Can't create new file";
 			
@@ -298,13 +299,34 @@ public class ModWindow extends JFrame {
 				}
 			}
 		});
-		mnFile.add(mntmNewFile);
+		mnMenu.add(mntmNewFile);
+		mntmsNewFile.add(mntmNewFile);
 		
 		JSeparator separator_1 = new JSeparator();
-		mnFile.add(separator_1);
-		mnFile.add(mntmFileEdit);
+		mnMenu.add(separator_1);
 		
-		mntmFileOpenJson = new JMenuItem("Open JSON");
+		JMenuItem mntmFileEdit = new JMenuItem("Edit Text");
+		mntmFileEdit.addActionListener(new ActionListener() {
+			@SuppressWarnings("incomplete-switch")
+			public void actionPerformed(ActionEvent e) {
+				if(selectedFile.getFile() != null)
+					switch(selectedFile.getFileType()){
+						case JSON:
+						case TEXT:{
+							editTextFile(selectedFile.getFile());
+						}
+						break;
+						case IMAGE:{
+							editImageFile(selectedFile.getFile());
+						}
+						break;
+					}
+			}
+		});
+		mnMenu.add(mntmFileEdit);
+		mntmsFileEdit.add(mntmFileEdit);
+		
+		JMenuItem mntmFileOpenJson = new JMenuItem("Open JSON");
 		mntmFileOpenJson.addActionListener(new ActionListener() {
 			private static final String ERROR_TITLE = "Can not open json object dialog";
 			
@@ -321,9 +343,8 @@ public class ModWindow extends JFrame {
 				}
 			}
 		});
-		mnFile.add(mntmFileOpenJson);
-		
-		pack();
+		mnMenu.add(mntmFileOpenJson);
+		mntmsFileOpenJson.add(mntmFileOpenJson);
 	}
 
 	/**
@@ -406,25 +427,39 @@ public class ModWindow extends JFrame {
 		if(selectedFile.getFileType() != null && fileValid){
 			switch (selectedFile.getFileType()) {
 				case IMAGE:
-					mntmFileEdit.setText("Edit Image");
+					for (JMenuItem mntmFileEdit : mntmsFileEdit) {
+						mntmFileEdit.setText("Edit Image");
+					}
 					editorAvailable = Settings.getCurrentSettings().isImageEditorValid();
 					break;
 				case JSON:
 				case TEXT:
-					mntmFileEdit.setText("Edit Text");
+					for (JMenuItem mntmFileEdit : mntmsFileEdit) {
+						mntmFileEdit.setText("Edit Text");
+					}
 					editorAvailable = Settings.getCurrentSettings().isTextEditorValid();
 					break;
 				default:
 					break;
 			}
-			mntmFileEdit.setEnabled( selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
-			mntmFileOpenJson.setEnabled(selectedFile.getFileType() == FileType.JSON);
+			for (JMenuItem mntmFileEdit : mntmsFileEdit) {
+				mntmFileEdit.setEnabled( selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
+			}
+			for (JMenuItem mntmFileOpenJson : mntmsFileOpenJson) {
+				mntmFileOpenJson.setVisible(selectedFile.getFileType() == FileType.JSON);
+			}
 		}
 		else{
-			mntmFileEdit.setEnabled(false);
-			mntmFileOpenJson.setEnabled(false);
+			for (JMenuItem mntmFileEdit : mntmsFileEdit) {
+				mntmFileEdit.setEnabled(false);
+			}
+			for (JMenuItem mntmFileOpenJson : mntmsFileOpenJson) {
+				mntmFileOpenJson.setVisible(false);
+			}
 		}
-		mntmNewFile.setEnabled(selectedFile != null);
+		for (JMenuItem mntmNewFile : mntmsNewFile) {
+			mntmNewFile.setEnabled(selectedFile != null);
+		}
 		
 		synchronized (pnlFileDetail.getTreeLock()) {
 			setEnabledRecursively(pnlFileDetail, fileValid);
@@ -574,5 +609,22 @@ public class ModWindow extends JFrame {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
 	}
 }
