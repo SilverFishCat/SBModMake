@@ -22,31 +22,33 @@
 
 package silver.starbound.ui;
 
-import javax.swing.JFrame;
-
-import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.Box;
-import javax.swing.JLabel;
-
-import java.awt.Component;
-
-import javax.swing.JButton;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-
-import javax.swing.JTree;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.tree.DefaultTreeModel;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -55,28 +57,18 @@ import silver.starbound.data.Settings;
 import silver.starbound.data.TypedFile;
 import silver.starbound.data.TypedFile.FileType;
 import silver.starbound.ui.util.FileUtil;
-import silver.starbound.util.*;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import silver.starbound.util.PathUtil;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
+
 import com.jgoodies.forms.factories.FormFactory;
-
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 import javax.swing.border.TitledBorder;
-
-import java.awt.Color;
-import java.awt.FlowLayout;
+import javax.swing.JSplitPane;
 
 /**
  * A window that displays the detail of a mod, as other components
@@ -91,16 +83,15 @@ public class ModWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 5116457126300886427L;
 	private JTree treeFiles;
-	private JButton btnFileEdit;
-	private JButton btnPack;
-	private JButton btnFilesLoad;
-	private JButton btnFileOpenJson;
-	private JPanel pnlFile;
 	private JLabel txtFileName;
 	private TypedFile selectedFile; 
 	private JLabel txtFileType;
 	
 	private Mod _mod;
+	private JMenuItem mntmPack;
+	private JMenuItem mntmFileOpenJson;
+	private JMenuItem mntmFileEdit;
+	private JPanel pnlFileDetail;
 
 	/**
 	 * Create the application.
@@ -119,100 +110,24 @@ public class ModWindow extends JFrame {
 	 */
 	private void initialize() {
 		setTitle("ModMake");
-		getContentPane().setLayout(new BorderLayout(0, 0));
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 		
-		Component hsCntWest = Box.createHorizontalStrut(20);
-		getContentPane().add(hsCntWest, BorderLayout.WEST);
+		JSplitPane splitPane = new JSplitPane();
+		getContentPane().add(splitPane);
 		
-		Component hsCntEast = Box.createHorizontalStrut(20);
-		getContentPane().add(hsCntEast, BorderLayout.EAST);
-		
-		Box hbMainContainer = Box.createHorizontalBox();
-		getContentPane().add(hbMainContainer, BorderLayout.CENTER);
-		
-		JPanel pnlMainContent = new JPanel();
-		pnlMainContent.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		GridBagLayout gbl_pnlMainContent = new GridBagLayout();
-		gbl_pnlMainContent.columnWidths = new int[]{0, 0, 0};
-		gbl_pnlMainContent.rowHeights = new int[]{0, 0, 0};
-		gbl_pnlMainContent.columnWeights = new double[]{0.0, 1.0, 0.0};
-		gbl_pnlMainContent.rowWeights = new double[]{0.0, Double.MIN_VALUE, 0.0};
-		pnlMainContent.setLayout(gbl_pnlMainContent);
-		hbMainContainer.add(pnlMainContent);
-		
-		JLabel lblFiles = new JLabel("Files:");
-		GridBagConstraints gbc_lblFiles = new GridBagConstraints();
-		gbc_lblFiles.gridwidth = 3;
-		gbc_lblFiles.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblFiles.insets = new Insets(0, 0, 5, 0);
-		gbc_lblFiles.gridx = 0;
-		gbc_lblFiles.gridy = 0;
-		pnlMainContent.add(lblFiles, gbc_lblFiles);
-		
-		JScrollPane scrlFiles = new JScrollPane();
-		scrlFiles.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		GridBagConstraints gbc_scrlFiles = new GridBagConstraints();
-		gbc_scrlFiles.insets = new Insets(0, 0, 5, 5);
-		gbc_scrlFiles.fill = GridBagConstraints.HORIZONTAL;
-		gbc_scrlFiles.gridwidth = 2;
-		gbc_scrlFiles.gridx = 0;
-		gbc_scrlFiles.gridy = 1;
-		scrlFiles.setPreferredSize(new Dimension(100, 150));
-		pnlMainContent.add(scrlFiles, gbc_scrlFiles);
-		
-		treeFiles = new JTree();
-		treeFiles.addTreeSelectionListener(new TreeSelectionListener() {
-			public void valueChanged(TreeSelectionEvent selectionEvent) {
-				onTreeSelectionChanged();
-			}
-		});
-		treeFiles.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		scrlFiles.setViewportView(treeFiles);
-		
-		JPanel pnlFilesButtons = new JPanel();
-		GridBagConstraints gbc_pnlFilesButtons = new GridBagConstraints();
-		gbc_pnlFilesButtons.insets = new Insets(0, 0, 5, 0);
-		gbc_pnlFilesButtons.fill = GridBagConstraints.BOTH;
-		gbc_pnlFilesButtons.gridx = 2;
-		gbc_pnlFilesButtons.gridy = 1;
-		pnlMainContent.add(pnlFilesButtons, gbc_pnlFilesButtons);
-		pnlFilesButtons.setLayout(new FormLayout(new ColumnSpec[] {
-				ColumnSpec.decode("pref:grow"),},
-			new RowSpec[] {
-				RowSpec.decode("23px"),
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,}));
-		
-		btnFilesLoad = new JButton("Load");
-		pnlFilesButtons.add(btnFilesLoad, "1, 1");
-		btnFilesLoad.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent pressEvent) {
-				refreshFilesList();
-				refreshFileDetailsPanel();
-			}
-		});
-		
-		pnlFile = new JPanel();
-		pnlFile.setBorder(new TitledBorder(null, "File", TitledBorder.LEADING, TitledBorder.TOP, null, Color.BLACK));
-		GridBagConstraints gbc_pnlFile = new GridBagConstraints();
-		gbc_pnlFile.gridy = 2;
-		gbc_pnlFile.gridx = 0;
-		gbc_pnlFile.gridwidth = 3;
-		gbc_pnlFile.fill = GridBagConstraints.HORIZONTAL;
-		pnlMainContent.add(pnlFile, gbc_pnlFile);		
-		pnlFile.setLayout(new BorderLayout(0, 0));
-		
-		JPanel pnlFileDetail = new JPanel();
-		pnlFile.add(pnlFileDetail, BorderLayout.CENTER);
+		pnlFileDetail = new JPanel();
+		pnlFileDetail.setPreferredSize(new Dimension(400, 400));
+		splitPane.setRightComponent(pnlFileDetail);
+		pnlFileDetail.setBorder(new TitledBorder(null, "File", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		pnlFileDetail.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("min:grow"),
+				ColumnSpec.decode("0dlu:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("min:grow(3)"),
+				ColumnSpec.decode("0dlu:grow(3)"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("min:grow"),
+				ColumnSpec.decode("0dlu:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("min:grow(3)"),
+				ColumnSpec.decode("0dlu:grow(3)"),
 				FormFactory.RELATED_GAP_COLSPEC,},
 			new RowSpec[] {
 				FormFactory.RELATED_GAP_ROWSPEC,
@@ -231,77 +146,42 @@ public class ModWindow extends JFrame {
 		txtFileType = new JLabel("N/A");
 		pnlFileDetail.add(txtFileType, "8, 2");
 		
-		JPanel pnlFileButtons = new JPanel();
-		FlowLayout fl_pnlFileButtons = (FlowLayout) pnlFileButtons.getLayout();
-		fl_pnlFileButtons.setAlignment(FlowLayout.RIGHT);
-		pnlFile.add(pnlFileButtons, BorderLayout.SOUTH);
+		JPanel pnlFiles = new JPanel();
+		pnlFiles.setPreferredSize(new Dimension(200, 400));
+		splitPane.setLeftComponent(pnlFiles);
+		pnlFiles.setLayout(new BoxLayout(pnlFiles, BoxLayout.X_AXIS));
 		
-		btnFileEdit = new JButton("Edit Text");
-		pnlFileButtons.add(btnFileEdit);
-		btnFileEdit.addActionListener(new ActionListener() {
-			@SuppressWarnings("incomplete-switch")
-			public void actionPerformed(ActionEvent arg0) {
-				if(selectedFile.getFile() != null)
-					switch(selectedFile.getFileType()){
-						case JSON:
-						case TEXT:{
-							editTextFile(selectedFile.getFile());
-						}
-						break;
-						case IMAGE:{
-							editImageFile(selectedFile.getFile());
-						}
-						break;
-					}
+		JScrollPane scrlFiles = new JScrollPane();
+		pnlFiles.add(scrlFiles);
+		scrlFiles.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		treeFiles = new JTree();
+		treeFiles.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent selectionEvent) {
+				onTreeSelectionChanged();
 			}
 		});
+		treeFiles.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		scrlFiles.setViewportView(treeFiles);
 		
-		btnFileOpenJson = new JButton("Open JSON");
-		btnFileOpenJson.addActionListener(new ActionListener() {
-			private static final String ERROR_TITLE = "Can not open json object dialog";
-			
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnMod = new JMenu("Mod");
+		menuBar.add(mnMod);
+		
+		mntmPack = new JMenuItem("Pack");
+		mntmPack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(selectedFile.getFileType() == FileType.JSON){
-					try{
-						JsonElement jsonFile = new JsonParser().parse(new FileReader(selectedFile.getFile())); 
-						showJsonObjectDialog(jsonFile, selectedFile.getFile().getName());
-					}
-					catch(Exception exception){
-						exception.printStackTrace();
-						JOptionPane.showMessageDialog(ModWindow.this, exception.getMessage(), ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			}
-		});
-		pnlFileButtons.add(btnFileOpenJson);
-		
-		Component hsMid = Box.createHorizontalStrut(5);
-		hbMainContainer.add(hsMid);
-		
-		JPanel pnlButton = new JPanel();
-		hbMainContainer.add(pnlButton);
-		pnlButton.setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.BUTTON_COLSPEC,},
-			new RowSpec[] {
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,}));
-		
-		btnPack = new JButton("Pack");
-		btnPack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
 				packMod();
 			}
 		});
-		pnlButton.add(btnPack, "1, 1");
-		btnPack.setAlignmentX(Component.CENTER_ALIGNMENT);
+		mnMod.add(mntmPack);
 		
-		JButton btnSave = new JButton("Save");
-		btnSave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent pressEvent) {
-				final String ERROR_MESSAGE = "Can't save _mod";
+		JMenuItem mntmSave = new JMenuItem("Save");
+		mntmSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				final String ERROR_MESSAGE = "Can't save mod";
 				File targetDirectory;
 				if(_mod.isFolderValid())
 					 targetDirectory = _mod.getFolder();
@@ -322,11 +202,11 @@ public class ModWindow extends JFrame {
 				}
 			}
 		});
-		pnlButton.add(btnSave, "1, 3");
+		mnMod.add(mntmSave);
 		
-		JButton btnLoad = new JButton("Load");
-		btnLoad.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent pressEvent) {
+		JMenuItem mntmLoad = new JMenuItem("Load");
+		mntmLoad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
 				final String ERROR_MESSAGE = "Can't load mod";
 				File file = FileUtil.selectFile(ModWindow.this, "Select save file", new File(Settings.getCurrentSettings().getModsFolder(), "mod.save"));
 				if(file != null){
@@ -347,13 +227,61 @@ public class ModWindow extends JFrame {
 				}
 			}
 		});
-		pnlButton.add(btnLoad, "1, 5");
+		mnMod.add(mntmLoad);
 		
-		Component hsCntNorth = Box.createVerticalStrut(20);
-		getContentPane().add(hsCntNorth, BorderLayout.NORTH);
+		JSeparator separator = new JSeparator();
+		mnMod.add(separator);
 		
-		Component hsCntSouth = Box.createVerticalStrut(20);
-		getContentPane().add(hsCntSouth, BorderLayout.SOUTH);
+		JMenuItem mntmRefresh = new JMenuItem("Refresh");
+		mntmRefresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				refreshFilesList();
+				refreshFileDetailsPanel();
+			}
+		});
+		mnMod.add(mntmRefresh);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		mntmFileEdit = new JMenuItem("Edit Text");
+		mntmFileEdit.addActionListener(new ActionListener() {
+			@SuppressWarnings("incomplete-switch")
+			public void actionPerformed(ActionEvent e) {
+				if(selectedFile.getFile() != null)
+					switch(selectedFile.getFileType()){
+						case JSON:
+						case TEXT:{
+							editTextFile(selectedFile.getFile());
+						}
+						break;
+						case IMAGE:{
+							editImageFile(selectedFile.getFile());
+						}
+						break;
+					}
+			}
+		});
+		mnFile.add(mntmFileEdit);
+		
+		mntmFileOpenJson = new JMenuItem("Open JSON");
+		mntmFileOpenJson.addActionListener(new ActionListener() {
+			private static final String ERROR_TITLE = "Can not open json object dialog";
+			
+			public void actionPerformed(ActionEvent e) {
+				if(selectedFile.getFileType() == FileType.JSON){
+					try{
+						JsonElement jsonFile = new JsonParser().parse(new FileReader(selectedFile.getFile())); 
+						showJsonObjectDialog(jsonFile, selectedFile.getFile().getName());
+					}
+					catch(Exception exception){
+						exception.printStackTrace();
+						JOptionPane.showMessageDialog(ModWindow.this, exception.getMessage(), ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
+		mnFile.add(mntmFileOpenJson);
 		
 		pack();
 	}
@@ -427,31 +355,31 @@ public class ModWindow extends JFrame {
 	private void refreshFileDetailsPanel(){		
 		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
 		
-		synchronized (pnlFile.getTreeLock()) {
-			setEnabledRecursively(pnlFile, fileValid);
-		}
-		
 		boolean editorAvailable = false;
-		if(selectedFile.getFileType() != null){
+		if(selectedFile.getFileType() != null && fileValid){
 			switch (selectedFile.getFileType()) {
 				case IMAGE:
-					btnFileEdit.setText("Edit Image");
+					mntmFileEdit.setText("Edit Image");
 					editorAvailable = Settings.getCurrentSettings().isImageEditorValid();
 					break;
 				case JSON:
 				case TEXT:
-					btnFileEdit.setText("Edit Text");
+					mntmFileEdit.setText("Edit Text");
 					editorAvailable = Settings.getCurrentSettings().isTextEditorValid();
 					break;
 				default:
 					break;
 			}
-			btnFileEdit.setEnabled(selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
-			btnFileOpenJson.setEnabled(selectedFile.getFileType() == FileType.JSON);
+			mntmFileEdit.setEnabled( selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
+			mntmFileOpenJson.setEnabled(selectedFile.getFileType() == FileType.JSON);
 		}
 		else{
-			btnFileEdit.setEnabled(false);
-			btnFileOpenJson.setEnabled(false);
+			mntmFileEdit.setEnabled(false);
+			mntmFileOpenJson.setEnabled(false);
+		}
+		
+		synchronized (pnlFileDetail.getTreeLock()) {
+			setEnabledRecursively(pnlFileDetail, fileValid);
 		}
 	}
 	/**
@@ -472,7 +400,6 @@ public class ModWindow extends JFrame {
 	 * Refresh the settings of the file list refresh button.
 	 */
 	private void refreshFilesLoadButton(){
-		btnFilesLoad.setEnabled(_mod.isFolderValid() && !_mod.getFolder().equals(Settings.getCurrentSettings().getModsFolder()));
 	}
 	/**
 	 * Refresh the settings of the pack button.
@@ -482,7 +409,7 @@ public class ModWindow extends JFrame {
 			
 		}
 		else{
-			btnPack.setEnabled(false);
+			mntmPack.setEnabled(false);
 		}
 	}
 	/**
