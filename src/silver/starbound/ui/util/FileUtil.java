@@ -67,9 +67,6 @@ public class FileUtil {
 	public static File selectFile(Component parentComponent, String title){
 		return selectFile(parentComponent, title, null);
 	}
-	/*private File selectFileFromDirectory(String title, File directory){
-		return selectFile(title, directory, null);
-	}*/
 	/**
 	 * Select a file.
 	 * Opens a dialog to allow the user to select a file.
