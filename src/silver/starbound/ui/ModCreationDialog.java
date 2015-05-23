@@ -28,7 +28,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -45,11 +44,14 @@ import silver.starbound.data.Settings;
 import silver.starbound.ui.util.FileUtil;
 import silver.starbound.util.PathUtil;
 
+import com.google.gson.JsonIOException;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
+
 import javax.swing.JPanel;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -232,8 +234,7 @@ public class ModCreationDialog extends JDialog {
 		btnCreate = new JButton("Create");
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ModCreationDialog.this.setVisible(false);
-				_listener.onModCreated(_mod);
+				tryToCreateModAndClose();
 			}
 		});
 		pnlButtons.add(btnCreate);
@@ -304,7 +305,7 @@ public class ModCreationDialog extends JDialog {
 	 * Called when the modinfo file name changes.
 	 */
 	private void onModinfoFilenameChanged(){
-		_mod.setModInfo(txtModinfoFilename.getText());
+		_mod.setModInfoFilename(txtModinfoFilename.getText());
 		
 		refreshDialogButtons();
 	}
@@ -339,7 +340,7 @@ public class ModCreationDialog extends JDialog {
 	 * @param filename The new modinfo filename
 	 */
 	private void setModinfoFile(String filename){
-		_mod.setModInfo(filename);
+		_mod.setModInfoFilename(filename);
 		if(_mod.getName() != null)
 			txtModinfoFilename.setText(filename);
 		else
@@ -358,18 +359,15 @@ public class ModCreationDialog extends JDialog {
 		if(_mod.getFolder() != null){
 			txtModFolder.setText(_mod.getFolder().getAbsolutePath());
 	}
-		if(_mod.getModInfo() != null){
-			txtModinfoFilename.setText(_mod.getModInfo());
+		if(_mod.getModInfoFilename() != null){
+			txtModinfoFilename.setText(_mod.getModInfoFilename());
 		}
 	}
 	/**
-	 * Refresh the state of the dialog main buttons
+	 * Refresh the state of the dialog main buttons.
 	 */
 	private void refreshDialogButtons(){
-		btnCreate.setEnabled(
-				_mod.getName() != null && !_mod.getName().equals("") &&
-				_mod.getFolder() != null &&
-				_mod.getModInfo() != null && !_mod.getModInfo().equals(""));
+		btnCreate.setEnabled(_mod.isReadyToBuild());
 	}
 	/**
 	 * Call all refresh methods of this dialog.
@@ -380,56 +378,31 @@ public class ModCreationDialog extends JDialog {
 	}
 	
 	/**
-	 * Create the modinfo file.
-	 * 
-	 * @param file The possibly non-existant modinfo file to create
-	 * @return True if file created, false otherwise
+	 * Try to create the mod and close the dialog if successfull.
 	 */
-	private boolean createModInfoFile(File file){
-		String errorTitle = "Can't create modinfo file";
-		boolean created = FileUtil.createFile(this, file);
-		
-		if(created){
-			if(file.canWrite()){
-				FileWriter writer;
-				try {
-					writer = new FileWriter(file);
-				} catch (IOException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(this, e.getMessage(), errorTitle, JOptionPane.ERROR_MESSAGE);
-					return false;
-				}
-				
-				try {
-					writer.write(
-							"{"											+ "\r\n" +
-							"\t\"name\" : \"" + _mod.getName() + "\","	+ "\r\n" +
-							"\t\"requires\" : [],"						+ "\r\n" +
-							"\t\"includes\" : []"						+ "\r\n" +
-						"}"												+ "\r\n"
-					);
-					
-					return true;
-				} catch (IOException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(this, e.getMessage(), errorTitle, JOptionPane.ERROR_MESSAGE);
-					return false;
-				}
-				finally{
-					try {
-						writer.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			else{
-				JOptionPane.showMessageDialog(this, "Can't create file", errorTitle, JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
+	private void tryToCreateModAndClose(){
+		if(createMod()){
+			setVisible(false);
+			_listener.onModCreated(_mod);
 		}
-		else{
-			//JOptionPane.showMessageDialog(frmModmake, "Can't create file", "Can't create modinfo file", JOptionPane.ERROR_MESSAGE);
+	}
+	/**
+	 * Create the mod structure.
+	 * 
+	 * @return True if successfull in creating the mod
+	 */
+	private boolean createMod(){
+		String errorTitle = "Can't create mod";
+		try {
+			_mod.buildModStructure();
+			return true;
+		} catch (JsonIOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error writing JSON", errorTitle, JOptionPane.ERROR_MESSAGE);
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error building mod structure", errorTitle, JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}
