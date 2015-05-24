@@ -20,11 +20,15 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-package silver.starbound.ui;
+package silver.starbound;
 
 import javax.swing.UIManager;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import silver.starbound.data.Settings;
+import silver.starbound.ui.MainMenuWindow;
 
 /**
  * Entry point for the application.
@@ -33,6 +37,8 @@ import silver.starbound.data.Settings;
  *
  */
 public class Main {
+	public static Gson Gson;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -43,6 +49,9 @@ public class Main {
 			
 			// Load settings
 			Settings.loadSettings();
+			
+			// Set the gson instance used for serialization/desrialization
+			Gson = new GsonBuilder().setPrettyPrinting().setVersion(1.1d).create();
 			
 			MainMenuWindow dialog = new MainMenuWindow();
 			dialog.setVisible(true);
