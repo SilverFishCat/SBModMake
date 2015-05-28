@@ -20,50 +20,11 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-package silver.starbound;
+package silver.starbound.ui.editor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
-import javax.swing.UIManager;
-
-import silver.starbound.data.Settings;
-import silver.starbound.ui.MainMenuWindow;
-import silver.starbound.ui.editor.FileEditor;
-import silver.starbound.ui.editor.ItemEditor;
-
-/**
- * Entry point for the application.
- * 
- * @author SilverFishCat
- *
- */
-public class Main {
-	public static List<FileEditor> _fileEditors;
-	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			// Set look and feel
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			
-			// Load settings
-			Settings.loadSettings();
-			
-			// Load editors
-			setEditors();
-			
-			MainMenuWindow dialog = new MainMenuWindow();
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private static void setEditors(){
-		_fileEditors = new ArrayList<FileEditor>();
-		_fileEditors.add(new ItemEditor());
-	}
+public interface FileEditor {
+	public JEditorPanel getEditorPanel(File file);
+	public boolean isExtensionMatchingEditor(String extension);
 }

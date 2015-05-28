@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -53,10 +52,12 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import silver.starbound.Main;
 import silver.starbound.data.Mod;
 import silver.starbound.data.Settings;
 import silver.starbound.data.TypedFile;
 import silver.starbound.data.TypedFile.FileType;
+import silver.starbound.ui.editor.FileEditor;
 import silver.starbound.ui.util.FileUtil;
 import silver.starbound.util.PathUtil;
 
@@ -69,11 +70,12 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 import javax.swing.border.TitledBorder;
-import javax.swing.JSplitPane;
 import javax.swing.JPopupMenu;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.JComboBox;
 
 /**
  * A window that displays the detail of a mod, as other components
@@ -88,21 +90,25 @@ public class ModWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 5116457126300886427L;
 	private JTree treeFiles;
-	private JLabel txtFileName;
 	private TypedFile selectedFile; 
 	private JLabel txtFileType;
-	
-	private Mod _mod;
 	private JMenuItem mntmPack;
 	private List<JMenuItem> mntmsFileOpenJson;
 	private List<JMenuItem> mntmsFileEdit;
 	private JPanel pnlFileDetail;
 	private List<JMenuItem> mntmsNewFile;
+	private TitledBorder pnlFileDetailBorder;
+	private JLabel lblEditor;
+	private JComboBox<FileEditor> cmbxEditor;
+	private JPanel pnlFileEditor;
+	
+	private Mod _mod;
 
 	/**
 	 * Create the application.
 	 */
 	public ModWindow(Mod mod) {
+		setResizable(false);
 		mntmsFileOpenJson = new ArrayList<>();
 		mntmsFileEdit = new ArrayList<>();
 		mntmsNewFile = new ArrayList<>();
@@ -120,7 +126,6 @@ public class ModWindow extends JFrame {
 	 */
 	private void initialize() {
 		setTitle("ModMake");
-		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -203,48 +208,16 @@ public class ModWindow extends JFrame {
 		menuBar.add(mnFile);
 		
 		addFileButtons(mnFile);
-		
-		JSplitPane splitPane = new JSplitPane();
-		getContentPane().add(splitPane);
-		
-		pnlFileDetail = new JPanel();
-		pnlFileDetail.setPreferredSize(new Dimension(400, 400));
-		splitPane.setRightComponent(pnlFileDetail);
-		pnlFileDetail.setBorder(new TitledBorder(null, "File", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		pnlFileDetail.setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow(3)"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("0dlu:grow(3)"),
-				FormFactory.RELATED_GAP_COLSPEC,},
+		pnlFileDetailBorder = new TitledBorder(null, "File", TitledBorder.LEADING, TitledBorder.TOP, null, null);
+		getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
+				ColumnSpec.decode("200dlu"),
+				ColumnSpec.decode("400dlu"),},
 			new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC,
-				RowSpec.decode("fill:default"),
-				FormFactory.RELATED_GAP_ROWSPEC,}));
-		
-		JLabel lblFileName = new JLabel("Name:");
-		pnlFileDetail.add(lblFileName, "2, 2, left, default");
-		
-		txtFileName = new JLabel("N/A");
-		pnlFileDetail.add(txtFileName, "4, 2");
-		
-		JLabel lblFileType = new JLabel("Type:");
-		pnlFileDetail.add(lblFileType, "6, 2");
-		
-		txtFileType = new JLabel("N/A");
-		pnlFileDetail.add(txtFileType, "8, 2");
-		
-		JPanel pnlFiles = new JPanel();
-		pnlFiles.setPreferredSize(new Dimension(200, 400));
-		splitPane.setLeftComponent(pnlFiles);
-		pnlFiles.setLayout(new BoxLayout(pnlFiles, BoxLayout.X_AXIS));
+				RowSpec.decode("400dlu"),}));
 		
 		JScrollPane scrlFiles = new JScrollPane();
-		pnlFiles.add(scrlFiles);
+		scrlFiles.setMinimumSize(new Dimension(200, 400));
+		getContentPane().add(scrlFiles, "1, 1, fill, fill");
 		scrlFiles.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		treeFiles = new JTree();
@@ -261,7 +234,50 @@ public class ModWindow extends JFrame {
 		
 		addFileButtons(popupMenu);
 		
-		pack();
+		pnlFileDetail = new JPanel();
+		getContentPane().add(pnlFileDetail, "2, 1, fill, fill");
+		pnlFileDetail.setBorder(pnlFileDetailBorder);
+		pnlFileDetail.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("min:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.MIN_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("0dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("fill:default"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("default:grow"),}));
+		
+		JLabel lblFileType = new JLabel("Type:");
+		pnlFileDetail.add(lblFileType, "2, 2");
+		
+		txtFileType = new JLabel("N/A");
+		pnlFileDetail.add(txtFileType, "4, 2");
+		
+		lblEditor = new JLabel("Editor:");
+		pnlFileDetail.add(lblEditor, "6, 2");
+		
+		cmbxEditor = new JComboBox<FileEditor>();
+		pnlFileDetail.add(cmbxEditor, "8, 2, fill, default");
+		cmbxEditor.addItem(null);
+		for (FileEditor fileEditor : Main._fileEditors) {
+			cmbxEditor.addItem(fileEditor);
+		}
+		cmbxEditor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setEditorPanel();
+			}
+		});
+		
+		JSeparator separator_1 = new JSeparator();
+		pnlFileDetail.add(separator_1, "2, 4, 7, 1");
 	}
 
 	private void addFileButtons(JComponent mnMenu) {
@@ -345,6 +361,8 @@ public class ModWindow extends JFrame {
 		});
 		mnMenu.add(mntmFileOpenJson);
 		mntmsFileOpenJson.add(mntmFileOpenJson);
+		
+		pack();
 	}
 
 	/**
@@ -367,35 +385,27 @@ public class ModWindow extends JFrame {
 	 */
 	private void setSelectedFile(File file){		
 		selectedFile = new TypedFile(file);
-		
-		if(file != null){
-			txtFileName.setText(selectedFile.getFile().getName());
-			
-			switch (selectedFile.getFileType()) {
-				case JSON:{
-					txtFileType.setText("JSON");
-				}
-				break;
-				case IMAGE:{
-					txtFileType.setText("Image");
-				}
-				break;
-				case TEXT:{
-					txtFileType.setText("Text");
-				}
-	
-				default:{
-					txtFileType.setText("N/A");
-				}
-				break;
-			}
-		}
-		else{
-			txtFileName.setText("N/A");
-			txtFileType.setText("N/A");
-		}
 	
 		refreshFileDetailsComponenets();
+	}
+	// TODO: document
+	private void setEditorPanel(){
+		FileEditor selectedEditor = cmbxEditor.getModel().getElementAt(cmbxEditor.getSelectedIndex());
+		if(pnlFileEditor != null)
+			pnlFileEditor.getParent().remove(pnlFileEditor);
+		
+		if(selectedEditor != null){
+			pnlFileEditor = selectedEditor.getEditorPanel(selectedFile.getFile());
+			pnlFileDetail.add(pnlFileEditor, "2, 6, 7, 1, fill, fill");
+		}
+		else{
+			pnlFileEditor = null;
+		}
+		
+		pnlFileDetail.getSize();
+		
+		validate();
+		repaint();
 	}
 	
 	/**
@@ -420,36 +430,52 @@ public class ModWindow extends JFrame {
 	/**
 	 * Refresh the files details panel with the file's details.
 	 */
-	private void refreshFileDetailsComponenets(){		
+	private void refreshFileDetailsComponenets(){	
 		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
-		
 		boolean editorAvailable = false;
-		if(selectedFile.getFileType() != null && fileValid){
+		
+		if(fileValid){
+			pnlFileDetailBorder.setTitle(selectedFile.getFile().getName());
+			
 			switch (selectedFile.getFileType()) {
-				case IMAGE:
+				case JSON:{
+					txtFileType.setText("JSON");
+				}
+				break;
+				case IMAGE:{
+					txtFileType.setText("Image");
 					for (JMenuItem mntmFileEdit : mntmsFileEdit) {
 						mntmFileEdit.setText("Edit Image");
 					}
 					editorAvailable = Settings.getCurrentSettings().isImageEditorValid();
-					break;
-				case JSON:
-				case TEXT:
+				}
+				break;
+				case TEXT:{
+					txtFileType.setText("Text");
 					for (JMenuItem mntmFileEdit : mntmsFileEdit) {
 						mntmFileEdit.setText("Edit Text");
 					}
 					editorAvailable = Settings.getCurrentSettings().isTextEditorValid();
-					break;
-				default:
-					break;
+				}
+	
+				default:{
+					txtFileType.setText("N/A");
+				}
+				break;
 			}
+
 			for (JMenuItem mntmFileEdit : mntmsFileEdit) {
-				mntmFileEdit.setEnabled( selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
+				mntmFileEdit.setEnabled(selectedFile.getFileType() != FileType.UNKNOWN && editorAvailable);
 			}
 			for (JMenuItem mntmFileOpenJson : mntmsFileOpenJson) {
 				mntmFileOpenJson.setVisible(selectedFile.getFileType() == FileType.JSON);
 			}
+			cmbxEditor.setVisible(selectedFile.getFileType() == FileType.JSON);
 		}
 		else{
+			pnlFileDetailBorder.setTitle("File");
+			txtFileType.setText("N/A");
+			cmbxEditor.setEnabled(false);
 			for (JMenuItem mntmFileEdit : mntmsFileEdit) {
 				mntmFileEdit.setEnabled(false);
 			}
@@ -457,6 +483,7 @@ public class ModWindow extends JFrame {
 				mntmFileOpenJson.setVisible(false);
 			}
 		}
+
 		for (JMenuItem mntmNewFile : mntmsNewFile) {
 			mntmNewFile.setEnabled(selectedFile != null);
 		}

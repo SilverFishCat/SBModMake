@@ -20,50 +20,51 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-package silver.starbound;
+package silver.starbound.ui.editor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.LayoutManager;
+import java.io.File;
 
-import javax.swing.UIManager;
+import javax.swing.JPanel;
 
-import silver.starbound.data.Settings;
-import silver.starbound.ui.MainMenuWindow;
-import silver.starbound.ui.editor.FileEditor;
-import silver.starbound.ui.editor.ItemEditor;
-
-/**
- * Entry point for the application.
- * 
- * @author SilverFishCat
- *
- */
-public class Main {
-	public static List<FileEditor> _fileEditors;
-	
+public abstract class JEditorPanel extends JPanel {
 	/**
-	 * Launch the application.
+	 * 
 	 */
-	public static void main(String[] args) {
-		try {
-			// Set look and feel
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			
-			// Load settings
-			Settings.loadSettings();
-			
-			// Load editors
-			setEditors();
-			
-			MainMenuWindow dialog = new MainMenuWindow();
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	private static final long serialVersionUID = 5945285729021767178L;
+	
+	private File _file;
+
+	public JEditorPanel(File file) {
+		super();
+		
+		setFile(file);
+	}
+	public JEditorPanel(File file, boolean isDoubleBuffered) {
+		super(isDoubleBuffered);
+		
+		setFile(file);
+	}
+	public JEditorPanel(File file, LayoutManager layout, boolean isDoubleBuffered) {
+		super(layout, isDoubleBuffered);
+		
+		setFile(file);
+	}
+	public JEditorPanel(File file, LayoutManager layout) {
+		super(layout);
+		
+		setFile(file);
 	}
 	
-	private static void setEditors(){
-		_fileEditors = new ArrayList<FileEditor>();
-		_fileEditors.add(new ItemEditor());
+	public void setFile(File file){
+		File oldFile = _file;
+		_file = file;
+		
+		onFileChanged(oldFile);
 	}
+	public File getFile(){
+		return _file;
+	}
+	
+	public abstract void onFileChanged(File oldFile);
 }
