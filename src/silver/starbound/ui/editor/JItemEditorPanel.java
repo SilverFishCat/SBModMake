@@ -25,9 +25,14 @@ package silver.starbound.ui.editor;
 import silver.starbound.data.Item;
 import silver.starbound.data.Item.Rarity;
 import silver.starbound.ui.util.FileUtil;
+import silver.starbound.util.JsonUtil;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonWriter;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
@@ -47,9 +52,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
@@ -229,12 +237,38 @@ public class JItemEditorPanel extends JEditorPanel {
 	}
 
 	@Override
-	public void onFileChanged(File oldFile) {
+	public void setFile(File file) {
+		super.setFile(file);
+		
 		if(_initialized){
 			refreshPanel();
 		}
 	}
 	
+	@Override
+	public void save() throws IOException{
+		File file = getFile();
+		
+		if(file != null){
+			FileReader reader = new FileReader(getFile());
+			JsonElement element = new JsonParser().parse(reader);
+			reader.close();
+			
+			if(element.isJsonObject()){
+				JsonObject object = element.getAsJsonObject();
+				JsonObject valObject = (JsonObject) JsonUtil.getGsonInstance().toJsonTree(_item);
+				
+				for (Map.Entry<String,JsonElement> entry : valObject.entrySet()) {
+					object.add(entry.getKey(), entry.getValue());
+				}
+
+				JsonWriter writer = new JsonWriter(new FileWriter(getFile()));
+				JsonUtil.getGsonInstance().toJson(object, writer);
+				writer.close();
+			}
+			
+		}
+	}
 	public void addBlueprintFromField(){
 		if(txtBlueprintAdd.getText() != null && !txtBlueprintAdd.getText().trim().isEmpty()) {
 			dlmBlueprints.addElement(txtBlueprintAdd.getText().trim());

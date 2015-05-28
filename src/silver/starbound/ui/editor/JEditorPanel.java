@@ -24,6 +24,7 @@ package silver.starbound.ui.editor;
 
 import java.awt.LayoutManager;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JPanel;
 
@@ -32,6 +33,9 @@ public abstract class JEditorPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 5945285729021767178L;
+	public interface FileChangedListener{
+		public void OnFileChanged();
+	}
 	
 	private File _file;
 
@@ -57,14 +61,11 @@ public abstract class JEditorPanel extends JPanel {
 	}
 	
 	public void setFile(File file){
-		File oldFile = _file;
 		_file = file;
-		
-		onFileChanged(oldFile);
 	}
 	public File getFile(){
 		return _file;
 	}
 	
-	public abstract void onFileChanged(File oldFile);
+	public abstract void save() throws IOException;
 }

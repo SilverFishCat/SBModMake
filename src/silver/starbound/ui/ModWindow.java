@@ -58,6 +58,7 @@ import silver.starbound.data.Settings;
 import silver.starbound.data.TypedFile;
 import silver.starbound.data.TypedFile.FileType;
 import silver.starbound.ui.editor.FileEditor;
+import silver.starbound.ui.editor.JEditorPanel;
 import silver.starbound.ui.util.FileUtil;
 import silver.starbound.util.PathUtil;
 
@@ -90,7 +91,6 @@ public class ModWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 5116457126300886427L;
 	private JTree treeFiles;
-	private TypedFile selectedFile; 
 	private JLabel txtFileType;
 	private JMenuItem mntmPack;
 	private List<JMenuItem> mntmsFileOpenJson;
@@ -100,9 +100,12 @@ public class ModWindow extends JFrame {
 	private TitledBorder pnlFileDetailBorder;
 	private JLabel lblEditor;
 	private JComboBox<FileEditor> cmbxEditor;
-	private JPanel pnlFileEditor;
+	private JEditorPanel pnlFileEditor;
+	private JMenu mnFile;
 	
 	private Mod _mod;
+	private TypedFile selectedFile; 
+	private JMenuItem mntmSaveFile;
 
 	/**
 	 * Create the application.
@@ -204,7 +207,7 @@ public class ModWindow extends JFrame {
 		});
 		mnMod.add(mntmRefresh);
 		
-		JMenu mnFile = new JMenu("File");
+		mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
 		addFileButtons(mnFile);
@@ -318,6 +321,20 @@ public class ModWindow extends JFrame {
 		mnMenu.add(mntmNewFile);
 		mntmsNewFile.add(mntmNewFile);
 		
+		mntmSaveFile = new JMenuItem("Save");
+		mntmSaveFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(pnlFileEditor != null)
+					try {
+						pnlFileEditor.save();
+					} catch (IOException exception) {
+						exception.printStackTrace();
+						JOptionPane.showMessageDialog(ModWindow.this, exception.getMessage(), "Error saving file", JOptionPane.ERROR_MESSAGE);
+					}
+			}
+		});
+		mnFile.add(mntmSaveFile);
+		
 		JSeparator separator_1 = new JSeparator();
 		mnMenu.add(separator_1);
 		
@@ -402,7 +419,7 @@ public class ModWindow extends JFrame {
 			pnlFileEditor = null;
 		}
 		
-		pnlFileDetail.getSize();
+		refreshEditorControls();
 		
 		validate();
 		repaint();
@@ -521,6 +538,10 @@ public class ModWindow extends JFrame {
 		else{
 			mntmPack.setEnabled(false);
 		}
+	}
+	// TODO: document
+	private void refreshEditorControls(){
+		mntmSaveFile.setEnabled(pnlFileEditor != null);
 	}
 	/**
 	 * Refresh the entire frame.
