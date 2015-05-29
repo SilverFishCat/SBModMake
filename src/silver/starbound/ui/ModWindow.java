@@ -63,7 +63,6 @@ import silver.starbound.ui.util.FileUtil;
 import silver.starbound.util.PathUtil;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -171,31 +170,6 @@ public class ModWindow extends JFrame {
 			}
 		});
 		mnMod.add(mntmSave);
-		
-		JMenuItem mntmLoad = new JMenuItem("Load");
-		mntmLoad.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				final String ERROR_MESSAGE = "Can't load mod";
-				File file = FileUtil.selectFile(ModWindow.this, "Select save file", new File(Settings.getCurrentSettings().getModsFolder(), "mod.save"));
-				if(file != null){
-					try {
-						_mod = Mod.loadFromFile(file);
-						
-						refreshEntireFrame();
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-						JOptionPane.showMessageDialog(ModWindow.this, e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
-					} catch (IOException e) {
-						e.printStackTrace();
-						JOptionPane.showMessageDialog(ModWindow.this, "Error in file:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
-					} catch (JsonParseException e){
-						e.printStackTrace();
-						JOptionPane.showMessageDialog(ModWindow.this, "Error in json object:\n " + e.getMessage(), ERROR_MESSAGE, JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			}
-		});
-		mnMod.add(mntmLoad);
 		
 		JSeparator separator = new JSeparator();
 		mnMod.add(separator);
