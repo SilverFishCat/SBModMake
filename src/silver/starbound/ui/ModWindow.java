@@ -270,7 +270,6 @@ public class ModWindow extends JFrame {
 		
 		cmbxEditor = new JComboBox<FileEditor>();
 		pnlFileDetail.add(cmbxEditor, "8, 2, fill, default");
-		cmbxEditor.addItem(null);
 		for (FileEditor fileEditor : Main._fileEditors) {
 			cmbxEditor.addItem(fileEditor);
 		}
@@ -498,6 +497,8 @@ public class ModWindow extends JFrame {
 			cmbxEditor.setEnabled(selectedFile.getFileType() == FileType.JSON);
 			
 			if(selectedFile.getFileType() == FileType.JSON){
+				defaultEditor = Main._defaultJsonEditor;
+				
 				String filename = selectedFile.getFile().getName();
 				int dotIndex = filename.lastIndexOf(".");
 				if(dotIndex != -1 && dotIndex < filename.length() - 1){

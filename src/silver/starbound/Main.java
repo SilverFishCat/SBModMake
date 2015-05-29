@@ -31,6 +31,7 @@ import silver.starbound.data.Settings;
 import silver.starbound.ui.MainMenuWindow;
 import silver.starbound.ui.editor.FileEditor;
 import silver.starbound.ui.editor.ItemEditor;
+import silver.starbound.ui.editor.PlainJsonEditor;
 
 /**
  * Entry point for the application.
@@ -40,6 +41,7 @@ import silver.starbound.ui.editor.ItemEditor;
  */
 public class Main {
 	public static List<FileEditor> _fileEditors;
+	public static FileEditor _defaultJsonEditor;
 	
 	/**
 	 * Launch the application.
@@ -64,6 +66,8 @@ public class Main {
 	
 	private static void setEditors(){
 		_fileEditors = new ArrayList<FileEditor>();
+		_defaultJsonEditor = new PlainJsonEditor();
+		_fileEditors.add(_defaultJsonEditor);
 		_fileEditors.add(new ItemEditor());
 	}
 }
