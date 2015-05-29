@@ -443,24 +443,33 @@ public class ModWindow extends JFrame {
 				break;
 				case IMAGE:{
 					txtFileType.setText("Image");
+				}
+				break;
+				case TEXT:{
+					txtFileType.setText("Text");
+				}
+				default:{
+					txtFileType.setText("N/A");
+				}
+				break;
+			}
+			switch (selectedFile.getFileType()) {
+				case IMAGE:{
 					for (JMenuItem mntmFileEdit : mntmsFileEdit) {
 						mntmFileEdit.setText("Edit Image");
 					}
 					editorAvailable = Settings.getCurrentSettings().isImageEditorValid();
 				}
 				break;
+				case JSON:
 				case TEXT:{
-					txtFileType.setText("Text");
 					for (JMenuItem mntmFileEdit : mntmsFileEdit) {
 						mntmFileEdit.setText("Edit Text");
 					}
 					editorAvailable = Settings.getCurrentSettings().isTextEditorValid();
 				}
-	
-				default:{
-					txtFileType.setText("N/A");
-				}
-				break;
+				
+				default:
 			}
 
 			for (JMenuItem mntmFileEdit : mntmsFileEdit) {
