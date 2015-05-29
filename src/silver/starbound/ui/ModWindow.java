@@ -90,6 +90,7 @@ public class ModWindow extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 5116457126300886427L;
+	
 	private JTree treeFiles;
 	private JLabel txtFileType;
 	private JMenuItem mntmPack;
@@ -402,7 +403,6 @@ public class ModWindow extends JFrame {
 	 */
 	private void setSelectedFile(File file){		
 		selectedFile = new TypedFile(file);
-		cmbxEditor.setSelectedItem(null);
 	
 		refreshFileDetailsComponenets();
 	}
@@ -451,6 +451,7 @@ public class ModWindow extends JFrame {
 	private void refreshFileDetailsComponenets(){	
 		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
 		boolean editorAvailable = false;
+		FileEditor defaultEditor = null;
 		
 		if(fileValid)
 			synchronized (pnlFileDetail.getTreeLock()){
@@ -493,7 +494,22 @@ public class ModWindow extends JFrame {
 			for (JMenuItem mntmFileOpenJson : mntmsFileOpenJson) {
 				mntmFileOpenJson.setVisible(selectedFile.getFileType() == FileType.JSON);
 			}
+			
 			cmbxEditor.setEnabled(selectedFile.getFileType() == FileType.JSON);
+			
+			if(selectedFile.getFileType() == FileType.JSON){
+				String filename = selectedFile.getFile().getName();
+				int dotIndex = filename.lastIndexOf(".");
+				if(dotIndex != -1 && dotIndex < filename.length() - 1){
+					String fileExtension = filename.substring(dotIndex + 1);
+					for (FileEditor fileEditor : Main._fileEditors) {
+						if(fileEditor.isExtensionMatchingEditor(fileExtension)){
+							defaultEditor = fileEditor;
+							break;
+						}
+					}
+				}
+			}
 		}
 		else{
 			pnlFileDetailBorder.setTitle("File");
@@ -506,6 +522,8 @@ public class ModWindow extends JFrame {
 				mntmFileOpenJson.setVisible(false);
 			}
 		}
+		
+		cmbxEditor.setSelectedItem(defaultEditor);
 
 		for (JMenuItem mntmNewFile : mntmsNewFile) {
 			mntmNewFile.setEnabled(selectedFile != null);
