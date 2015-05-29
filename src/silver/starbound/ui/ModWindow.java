@@ -242,7 +242,7 @@ public class ModWindow extends JFrame {
 		pnlFileDetail.setBorder(pnlFileDetailBorder);
 		pnlFileDetail.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("min:grow"),
+				FormFactory.MIN_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("0dlu:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
@@ -258,13 +258,13 @@ public class ModWindow extends JFrame {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("default:grow"),}));
 		
-		JLabel lblFileType = new JLabel("Type:");
+		JLabel lblFileType = new JLabel("File type:");
 		pnlFileDetail.add(lblFileType, "2, 2");
 		
 		txtFileType = new JLabel("N/A");
 		pnlFileDetail.add(txtFileType, "4, 2");
 		
-		lblEditor = new JLabel("Editor:");
+		lblEditor = new JLabel("Type:");
 		pnlFileDetail.add(lblEditor, "6, 2");
 		
 		cmbxEditor = new JComboBox<FileEditor>();
@@ -452,6 +452,11 @@ public class ModWindow extends JFrame {
 		boolean fileValid = selectedFile.getFile() != null && selectedFile.getFile().isFile();
 		boolean editorAvailable = false;
 		
+		if(fileValid)
+			synchronized (pnlFileDetail.getTreeLock()){
+				setEnabledRecursively(pnlFileDetail, fileValid);
+			}
+		
 		if(fileValid){
 			pnlFileDetailBorder.setTitle(selectedFile.getFile().getName());
 			
@@ -488,7 +493,7 @@ public class ModWindow extends JFrame {
 			for (JMenuItem mntmFileOpenJson : mntmsFileOpenJson) {
 				mntmFileOpenJson.setVisible(selectedFile.getFileType() == FileType.JSON);
 			}
-			cmbxEditor.setVisible(selectedFile.getFileType() == FileType.JSON);
+			cmbxEditor.setEnabled(selectedFile.getFileType() == FileType.JSON);
 		}
 		else{
 			pnlFileDetailBorder.setTitle("File");
@@ -506,9 +511,10 @@ public class ModWindow extends JFrame {
 			mntmNewFile.setEnabled(selectedFile != null);
 		}
 		
-		synchronized (pnlFileDetail.getTreeLock()) {
-			setEnabledRecursively(pnlFileDetail, fileValid);
-		}
+		if(!fileValid)
+			synchronized (pnlFileDetail.getTreeLock()){
+				setEnabledRecursively(pnlFileDetail, fileValid);
+			}
 	}
 	/**
 	 * Set the enabled state of a component and of all its children.
