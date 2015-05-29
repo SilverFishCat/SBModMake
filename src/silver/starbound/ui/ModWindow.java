@@ -402,6 +402,7 @@ public class ModWindow extends JFrame {
 	 */
 	private void setSelectedFile(File file){		
 		selectedFile = new TypedFile(file);
+		cmbxEditor.setSelectedItem(null);
 	
 		refreshFileDetailsComponenets();
 	}
