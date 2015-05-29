@@ -182,6 +182,20 @@ public class JItemEditorPanel extends JEditorPanel {
 		add(lblDescription, "1, 6");
 		
 		txtDescription = new JTextArea();
+		txtDescription.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				onDescriptionChanged();
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				onDescriptionChanged();
+			}
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				onDescriptionChanged();
+			}
+		});
 		add(txtDescription, "3, 6, 5, 3");
 		
 		JLabel lblIcon = new JLabel("Icon:");
