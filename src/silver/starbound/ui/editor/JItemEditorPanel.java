@@ -39,6 +39,7 @@ import com.jgoodies.forms.factories.FormFactory;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -117,9 +118,7 @@ public class JItemEditorPanel extends JEditorPanel {
 				FormFactory.LINE_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.LINE_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.LINE_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("top:50dlu"),
 				FormFactory.LINE_GAP_ROWSPEC,}));
 		
 		JLabel lblName = new JLabel("Name:");
@@ -222,6 +221,20 @@ public class JItemEditorPanel extends JEditorPanel {
 		add(lblBlueprints, "1, 11");
 		
 		txtBlueprintAdd = new JTextField();
+		txtBlueprintAdd.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				onBlueprintToAddChanged();
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				onBlueprintToAddChanged();
+			}
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				onBlueprintToAddChanged();
+			}
+		});
 		add(txtBlueprintAdd, "3, 11, fill, default");
 		
 		btnBlueprintAdd = new JButton("Add");
@@ -233,13 +246,15 @@ public class JItemEditorPanel extends JEditorPanel {
 		add(btnBlueprintAdd, "9, 11");
 		
 		lstBlueprints = new JList<String>();
+		lstBlueprints.setVisibleRowCount(3);
 		dlmBlueprints = new DefaultListModel<String>();
 		lstBlueprints.setModel(dlmBlueprints);
 		lstBlueprints.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {
+				onSelectedBlueprintChanged();
 			}
 		});
-		add(lstBlueprints, "3, 13, 1, 5, fill, fill");
+		add(new JScrollPane(lstBlueprints), "3, 13, 1, 3, fill, fill");
 		
 		btnBlueprintRemove = new JButton("Remove");
 		btnBlueprintRemove.addActionListener(new ActionListener() {
