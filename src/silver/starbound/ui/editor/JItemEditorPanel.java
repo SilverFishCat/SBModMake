@@ -32,7 +32,6 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonWriter;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
@@ -279,7 +278,7 @@ public class JItemEditorPanel extends JEditorPanel {
 					object.add(entry.getKey(), entry.getValue());
 				}
 
-				JsonWriter writer = new JsonWriter(new FileWriter(getFile()));
+				FileWriter writer = new FileWriter(getFile());
 				JsonUtil.getGsonInstance().toJson(object, writer);
 				writer.close();
 			}
