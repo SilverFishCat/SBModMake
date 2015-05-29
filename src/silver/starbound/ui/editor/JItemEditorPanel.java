@@ -109,9 +109,8 @@ public class JItemEditorPanel extends JEditorPanel {
 				FormFactory.LINE_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.LINE_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.LINE_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("10dlu"),
+				RowSpec.decode("10dlu"),
 				FormFactory.LINE_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.LINE_GAP_ROWSPEC,
@@ -196,14 +195,16 @@ public class JItemEditorPanel extends JEditorPanel {
 				onDescriptionChanged();
 			}
 		});
-		add(txtDescription, "3, 6, 5, 3");
+		txtDescription.setFont(txtDescription.getFont().deriveFont(12f)); //why is the text so small ._.
+		txtDescription.setLineWrap(true);
+		add(txtDescription, "3, 6, 5, 2");
 		
 		JLabel lblIcon = new JLabel("Icon:");
-		add(lblIcon, "1, 10");
+		add(lblIcon, "1, 9");
 		
 		txtIcon = new JTextField();
 		txtIcon.setEditable(false);
-		add(txtIcon, "3, 10, 5, 1, fill, default");
+		add(txtIcon, "3, 9, 5, 1, fill, default");
 		
 		JButton btnIconBrowse = new JButton("Browse");
 		btnIconBrowse.addActionListener(new ActionListener() {
@@ -214,13 +215,13 @@ public class JItemEditorPanel extends JEditorPanel {
 				}
 			}
 		});
-		add(btnIconBrowse, "9, 10, default, center");
+		add(btnIconBrowse, "9, 9, default, center");
 		
 		JLabel lblBlueprints = new JLabel("Blueprints:");
-		add(lblBlueprints, "1, 12");
+		add(lblBlueprints, "1, 11");
 		
 		txtBlueprintAdd = new JTextField();
-		add(txtBlueprintAdd, "3, 12, fill, default");
+		add(txtBlueprintAdd, "3, 11, fill, default");
 		
 		btnBlueprintAdd = new JButton("Add");
 		btnBlueprintAdd.addActionListener(new ActionListener() {
@@ -228,7 +229,7 @@ public class JItemEditorPanel extends JEditorPanel {
 				addBlueprintFromField();
 			}
 		});
-		add(btnBlueprintAdd, "9, 12");
+		add(btnBlueprintAdd, "9, 11");
 		
 		lstBlueprints = new JList<String>();
 		dlmBlueprints = new DefaultListModel<String>();
@@ -237,7 +238,7 @@ public class JItemEditorPanel extends JEditorPanel {
 			public void valueChanged(ListSelectionEvent arg0) {
 			}
 		});
-		add(lstBlueprints, "3, 14, 1, 5, fill, fill");
+		add(lstBlueprints, "3, 13, 1, 5, fill, fill");
 		
 		btnBlueprintRemove = new JButton("Remove");
 		btnBlueprintRemove.addActionListener(new ActionListener() {
@@ -245,7 +246,7 @@ public class JItemEditorPanel extends JEditorPanel {
 				removeSelectedBlueprints();
 			}
 		});
-		add(btnBlueprintRemove, "9, 14");
+		add(btnBlueprintRemove, "9, 13");
 		
 		_initialized = true;
 	}
