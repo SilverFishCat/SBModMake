@@ -88,7 +88,7 @@ public class JItemEditorPanel extends JEditorPanel {
 		_inventoryIconFileUI = null;
 		
 		initialize();
-		
+		loadItemFromFile();
 		refreshPanel();
 	}
 	
@@ -213,6 +213,8 @@ public class JItemEditorPanel extends JEditorPanel {
 				if(selectedFile != null) {
 					_item.setInventoryIconFile(selectedFile);
 				}
+				
+				refreshInventoryIcon();
 			}
 		});
 		add(btnIconBrowse, "9, 9, default, center");
@@ -284,6 +286,14 @@ public class JItemEditorPanel extends JEditorPanel {
 			
 		}
 	}
+	public void loadItemFromFile(){
+		try {
+			_item = Item.loadFromFile(getFile());
+		} catch (IOException e) {
+			e.printStackTrace();
+			// TODO: show error dialog and disable the panel
+		}
+	}
 	public void addBlueprintFromField(){
 		if(txtBlueprintAdd.getText() != null && !txtBlueprintAdd.getText().trim().isEmpty()) {
 			dlmBlueprints.addElement(txtBlueprintAdd.getText().trim());
@@ -352,12 +362,6 @@ public class JItemEditorPanel extends JEditorPanel {
 		txtIcon.setText(_item.getInventoryIcon());
 	}
 	public void refreshPanel(){
-		try {
-			_item = Item.loadFromFile(getFile());
-		} catch (IOException e) {
-			e.printStackTrace();
-			// TODO: show error dialog and disable the panel
-		}
 		refreshItemComponents();
 		
 		refreshBlueprintAddButton();
