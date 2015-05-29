@@ -23,13 +23,14 @@
 package silver.starbound.ui.editor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-
+/**
+ * A file editor for starbound item files.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class ItemEditor implements FileEditor {
-
 	/*@Override
 	public JsonTreeConstraints getJsonTreeConstraints() {
 		Map<String, JsonTreeConstraints.Node> childNodes = new HashMap<String, JsonTreeConstraints.Node>();
@@ -61,17 +62,10 @@ public class ItemEditor implements FileEditor {
 	public boolean isExtensionMatchingEditor(String extension) {
 		return extension.equals("item");
 	}
-
 	@Override
 	public JEditorPanel getEditorPanel(File file) {
-		try {
-			return new JItemEditorPanel(file);
-		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-			e.printStackTrace(); // TODO:show error message
-			return null;
-		}
+		return new JItemEditorPanel(file);
 	}
-
 	@Override
 	public String toString() {
 		return "Item";

@@ -24,7 +24,25 @@ package silver.starbound.ui.editor;
 
 import java.io.File;
 
+/**
+ * An editor interface for files in a starbound mod.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public interface FileEditor {
+	/**
+	 * Get file editing panel that edits the given file.
+	 * 
+	 * @param file The file to edit
+	 * @return A panel that edits the given file
+	 */
 	public JEditorPanel getEditorPanel(File file);
+	/**
+	 * Check whether the editor matches the given extension.
+	 * 
+	 * @param extension The extension of a file
+	 * @return whether the editor matches the given extension
+	 */
 	public boolean isExtensionMatchingEditor(String extension);
 }

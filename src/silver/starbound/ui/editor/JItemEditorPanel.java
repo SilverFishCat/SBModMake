@@ -28,10 +28,8 @@ import silver.starbound.ui.util.FileUtil;
 import silver.starbound.util.JsonUtil;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
@@ -51,17 +49,20 @@ import javax.swing.event.DocumentListener;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
+/**
+ * An editor panel for starbound items.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public class JItemEditorPanel extends JEditorPanel {
 	/**
 	 * 
@@ -70,7 +71,6 @@ public class JItemEditorPanel extends JEditorPanel {
 	
 	private boolean _initialized = false;
 	private Item _item;
-	private File _inventoryIconFileUI;
 	
 	private JTextField txtIcon;
 	private JTextField txtName;
@@ -83,16 +83,23 @@ public class JItemEditorPanel extends JEditorPanel {
 	private JButton btnBlueprintAdd;
 	private JButton btnBlueprintRemove;
 
-	public JItemEditorPanel(File file) throws JsonIOException, JsonSyntaxException, FileNotFoundException {
+	/**
+	 * Create a new item editor panel.
+	 * 
+	 * @param file The file to edit
+	 */
+	public JItemEditorPanel(File file) {
 		super(file);
-		_inventoryIconFileUI = null;
 		
 		initialize();
 		loadItemFromFile();
 		refreshPanel();
 	}
 	
-	public void initialize(){
+	/**
+	 * Insert and set all the components in the panel.
+	 */
+	private void initialize(){
 		setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("left:min"),
 				FormFactory.RELATED_GAP_COLSPEC,
@@ -303,6 +310,9 @@ public class JItemEditorPanel extends JEditorPanel {
 			writer.close();
 		}
 	}
+	/**
+	 * Load the item object from the file being editted.
+	 */
 	public void loadItemFromFile(){
 		try {
 			_item = Item.loadFromFile(getFile());
@@ -311,6 +321,9 @@ public class JItemEditorPanel extends JEditorPanel {
 			// TODO: show error dialog and disable the panel
 		}
 	}
+	/**
+	 * Add the current blueprint name in the blueprint text field into the blueprint list.
+	 */
 	public void addBlueprintFromField(){
 		if(txtBlueprintAdd.getText() != null && !txtBlueprintAdd.getText().trim().isEmpty()) {
 			dlmBlueprints.addElement(txtBlueprintAdd.getText().trim());
@@ -319,6 +332,9 @@ public class JItemEditorPanel extends JEditorPanel {
 			refreshBlueprintAddButton();
 		}
 	}
+	/**
+	 * Remove all the selected blueprints from the list.
+	 */
 	public void removeSelectedBlueprints(){
 		if(lstBlueprints.getSelectedValue() != null) {
 			for (String blueprintToRemove : lstBlueprints.getSelectedValuesList()) {
@@ -329,42 +345,59 @@ public class JItemEditorPanel extends JEditorPanel {
 		}
 	}
 	
-	public void onNameFieldChanged(){
+	/**
+	 * Called when the name field is changed.
+	 */
+	private void onNameFieldChanged(){
 		_item.setItemName(txtName.getText());
 	}
-	public void onShortDescriptionChanged(){
+	/**
+	 * Called when the short description field is changed.
+	 */
+	private void onShortDescriptionChanged(){
 		_item.setShortDescription(txtShortDescription.getText());
 	}
-	public void onRarityChanged(){
+	/**
+	 * Called when the rarity choice is changed.
+	 */
+	private void onRarityChanged(){
 		_item.setRarity((Rarity) cmbxRarity.getSelectedItem());
 	}
-	public void onDescriptionChanged(){
+	/**
+	 * Called when the description field is changed.
+	 */
+	private void onDescriptionChanged(){
 		_item.setDescription(txtDescription.getText());
 	}
-	public void onInventoryItemChanged(){
-		_item.setInventoryIconFile(_inventoryIconFileUI);
-	}
-	public void onBlueprintToAddChanged(){
+	/**
+	 * Called when the add blueprint field is changed.
+	 */
+	private void onBlueprintToAddChanged(){
 		refreshBlueprintAddButton();
 	}
-	public void onSelectedBlueprintChanged(){
+	/**
+	 * Called when the selected blueprints are changed.
+	 */
+	private void onSelectedBlueprintChanged(){
 		refreshBlueprintRemoveButton();
 	}
-	public void onBlueprintsChanged(){
-		List<String> blueprints = new ArrayList<String>();
-		for (int i = 0; i < dlmBlueprints.getSize(); i++) {
-			blueprints.add(dlmBlueprints.getElementAt(i));
-		}
-		_item.setBlueprintsLearnedOnPickup(blueprints);
-	}
 
-	public void refreshBlueprintAddButton(){
+	/**
+	 * Refresh the add blueprint button.
+	 */
+	private void refreshBlueprintAddButton(){
 		btnBlueprintAdd.setEnabled(txtBlueprintAdd.getText() != null && !txtBlueprintAdd.getText().trim().isEmpty());
 	}
-	public void refreshBlueprintRemoveButton(){
+	/**
+	 * Refresh the remove blueprint button.
+	 */
+	private void refreshBlueprintRemoveButton(){
 		btnBlueprintRemove.setEnabled(lstBlueprints.getSelectedValue() != null);
 	}
-	public void refreshItemComponents(){
+	/**
+	 * Refresh the components in charge of the item editing fields.
+	 */
+	private void refreshItemComponents(){
 		txtName.setText(_item.getItemName());
 		txtShortDescription.setText(_item.getShortDescription());
 		cmbxRarity.setSelectedItem(_item.getRarity());
@@ -375,10 +408,16 @@ public class JItemEditorPanel extends JEditorPanel {
 			dlmBlueprints.addElement(blueprint);
 		}
 	}
-	public void refreshInventoryIcon(){
+	/**
+	 * Refresh the inventory icon field.
+	 */
+	private void refreshInventoryIcon(){
 		txtIcon.setText(_item.getInventoryIcon());
 	}
-	public void refreshPanel(){
+	/**
+	 * Refresh the entire panel.
+	 */
+	private void refreshPanel(){
 		refreshItemComponents();
 		
 		refreshBlueprintAddButton();

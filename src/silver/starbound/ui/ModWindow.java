@@ -379,7 +379,9 @@ public class ModWindow extends JFrame {
 	
 		refreshFileDetailsComponenets();
 	}
-	// TODO: document
+	/**
+	 * Add the selected editor panel to the window. 
+	 */
 	private void setEditorPanel(){
 		FileEditor selectedEditor = cmbxEditor.getModel().getElementAt(cmbxEditor.getSelectedIndex());
 		if(pnlFileEditor != null)
@@ -539,7 +541,9 @@ public class ModWindow extends JFrame {
 			mntmPack.setEnabled(false);
 		}
 	}
-	// TODO: document
+	/**
+	 * Refresh all the components controlling the file editing.
+	 */
 	private void refreshEditorControls(){
 		mntmSaveFile.setEnabled(pnlFileEditor != null);
 	}

@@ -28,44 +28,98 @@ import java.io.IOException;
 
 import javax.swing.JPanel;
 
+/**
+ * A panel for editing a starbound file.
+ * 
+ * @author SilverFishCat
+ *
+ */
 public abstract class JEditorPanel extends JPanel {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5945285729021767178L;
-	public interface FileChangedListener{
-		public void OnFileChanged();
+	/**
+	 * A listener that listens to edit changes.
+	 * 
+	 * @author SilverFishCat
+	 *
+	 */
+	public interface EditChangedListener{
+		/**
+		 * Called when the editor makes a possible change to the file.
+		 */
+		public void OnEditChanged(); // TODO: implement in class
 	}
 	
 	private File _file;
 
+	/**
+	 * Create a new editor panel.
+	 * 
+	 * @param file The file to edit
+	 */
 	public JEditorPanel(File file) {
 		super();
 		
 		setFile(file);
 	}
+	/**
+	 * Create a new editor panel.
+	 * 
+	 * @param file The file to edit
+	 * @param isDoubleBuffered Whether the panel is double buffered
+	 */
 	public JEditorPanel(File file, boolean isDoubleBuffered) {
 		super(isDoubleBuffered);
 		
 		setFile(file);
 	}
-	public JEditorPanel(File file, LayoutManager layout, boolean isDoubleBuffered) {
-		super(layout, isDoubleBuffered);
-		
-		setFile(file);
-	}
+	/**
+	 * Create a new editor panel.
+	 * 
+	 * @param file The file to edit
+	 * @param layout The editor's layout
+	 */
 	public JEditorPanel(File file, LayoutManager layout) {
 		super(layout);
 		
 		setFile(file);
 	}
+	/**
+	 * Create a new editor panel.
+	 * 
+	 * @param file The file to edit
+	 * @param layout The editor's layout
+	 * @param isDoubleBuffered Whether the panel is double buffered
+	 */
+	public JEditorPanel(File file, LayoutManager layout, boolean isDoubleBuffered) {
+		super(layout, isDoubleBuffered);
+		
+		setFile(file);
+	}
 	
+	/**
+	 * Set the file being edited.
+	 * 
+	 * @param file The file being edited
+	 */
 	public void setFile(File file){
 		_file = file;
 	}
+	/**
+	 * Get the file being editted.
+	 * 
+	 * @return The file being editted
+	 */
 	public File getFile(){
 		return _file;
 	}
 	
+	/**
+	 * Save the edit changes into the file.
+	 * 
+	 * @throws IOException If there was an error saving the changes
+	 */
 	public abstract void save() throws IOException;
 }
