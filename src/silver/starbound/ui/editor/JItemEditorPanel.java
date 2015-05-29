@@ -285,19 +285,22 @@ public class JItemEditorPanel extends JEditorPanel {
 			JsonElement element = new JsonParser().parse(reader);
 			reader.close();
 			
+			JsonObject resultObject;
+			JsonObject valObject = (JsonObject) JsonUtil.getGsonInstance().toJsonTree(_item);
 			if(element.isJsonObject()){
-				JsonObject object = element.getAsJsonObject();
-				JsonObject valObject = (JsonObject) JsonUtil.getGsonInstance().toJsonTree(_item);
+				resultObject = element.getAsJsonObject();
 				
 				for (Map.Entry<String,JsonElement> entry : valObject.entrySet()) {
-					object.add(entry.getKey(), entry.getValue());
+					resultObject.add(entry.getKey(), entry.getValue());
 				}
-
-				FileWriter writer = new FileWriter(getFile());
-				JsonUtil.getGsonInstance().toJson(object, writer);
-				writer.close();
 			}
-			
+			else{
+				resultObject = valObject;
+			}
+
+			FileWriter writer = new FileWriter(getFile());
+			JsonUtil.getGsonInstance().toJson(resultObject, writer);
+			writer.close();
 		}
 	}
 	public void loadItemFromFile(){
